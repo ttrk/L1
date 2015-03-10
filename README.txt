@@ -1,8 +1,8 @@
 Set of macros to run L1 Jet algorithm on top of previous L1 results.
 
 Instructions:
-The macro L1JetEmulator.C contains a copy of the L1 jet emulator. It expects as input a file made by the L1UpgradeAnalyzer code, but only uses the region information. To test a change to the L1 jet algorithm, modify this macro and use runL1JetEmulator.sh to run it.
+The macro L1JetEmulator.C contains a copy of the L1 jet emulator. It expects as input a file made by the L1UpgradeAnalyzer code, but only uses the region information. To test a change to the L1 jet algorithm, modify this macro and use runL1JetEmulator.sh to run the algorithm, make rate curves, and make turn-on curves.
 
-Once the output is created, you can use the makeRateCurve.C macro to draw the L1 Jet rate as a function of physical pT in GeV. It can be run interactively in a root session to draw the rate curve, or in batch mode which will dump the rates to text.
+makeRateCurve.C macro will draw the L1 Jet rate as a function of l1 physical pT in GeV. It can be run interactively in a root session to draw the rate curve, or in batch mode which will dump the rates to text.
 
-The macro makeTurnOnCurves.C will also draw a set of Turn-on curves and requires event matching between a HiForest file and the output of the L1 Jet emulator. You can change the L1 thresholds inside the macro.
+The macro makeTurnOn.C will match events from the algorithm output and a HiForest and then make a root file with turn on curves in it. You can use the macro plotTurnOn.C interactively in a root session to then make pretty plots out of the results.
