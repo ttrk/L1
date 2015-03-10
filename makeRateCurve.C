@@ -6,15 +6,16 @@
 
 #include <iostream>
 
-void makeRateCurve()
+void makeRateCurve(TString inFileName = "Hydjet502_JetResults.root")
 {
+  std::cout << "Analyzing " << inFileName << std::endl;
   TH1::SetDefaultSumw2();
 
   const int MAXJETS = 8;
   const int nBins = 64;
   const int maxPt = 256; // make sure that maxPt/nBins = 4.
 
-  TFile *inFile = TFile::Open("Hydjet502_JetResults.root");
+  TFile *inFile = TFile::Open(inFileName);
   TTree *inTree = (TTree*)inFile->Get("L1UpgradeTree");
 
   Int_t l1_pt[MAXJETS];
@@ -57,4 +58,22 @@ void makeRateCurve()
   c1->SetLogy();
 
   //c1->SaveAs("hydjet_502_jets_rate.pdf");
+}
+
+int main(int argc, char **argv)
+{
+  if(argc == 1){
+    makeRateCurve();
+    return 0;
+  }
+  else if ( argc == 2 )
+  {
+    makeRateCurve(argv[1]);
+    return 0;
+  }
+  else
+  {
+    std::cout << "Usage: \nmakeRateCurve.exe <input_file_name>" << std::endl;
+    return 1;
+  }
 }

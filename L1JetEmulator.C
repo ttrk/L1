@@ -16,21 +16,10 @@ void SlidingWindowJetFinder(cand input[396], cand output[8]);
 
 int deltaGctPhi(int phi1, int phi2);
 
-void L1JetEmulator(bool sample502 = true)
+void L1JetEmulator(TString l1_input = "/export/d00/scratch/luck/HydjetMB_740pre8_MCHI2_74_V3_53XBS_L1UpgradeAnalyzer_GT_MCHI2_74_V3.root", TString outFileName = "Hydjet502_JetResults.root")
 {
-  // 5.02 TeV minbias Hydjet
-  TString l1_input = "/export/d00/scratch/luck/HydjetMB_740pre8_MCHI2_74_V3_53XBS_L1UpgradeAnalyzer_GT_MCHI2_74_V3.root";
-
-  // 2.76 TeV minbias Hydjet (maybe bad conditions?)
-  if(!sample502)
-  {
-    l1_input = "/export/d00/scratch/luck/Hydjet1p8_2760GeV_L1UpgradeAnalyzer_GT_run1_mc_HIon_L1UpgradeAnalyzer.root";
-    std::cout << "Analyzing 2.76 TeV Hydjet sample" << std::endl;
-  }
-  else
-  {
-    std::cout << "Analyzing 5.02 TeV Hydjet sample" << std::endl;
-  }
+  std::cout << "Processing file: " << l1_input << std::endl;
+  std::cout << "Saving to: " << outFileName << std::endl;
   
   TFile *lFile = TFile::Open(l1_input);
   TTree *l1Tree = (TTree*)lFile->Get("L1UpgradeAnalyzer/L1UpgradeTree");
@@ -48,12 +37,7 @@ void L1JetEmulator(bool sample502 = true)
   l1Tree->SetBranchAddress("region_hwEta", region_hwEta);
   l1Tree->SetBranchAddress("region_hwPhi", region_hwPhi);
 
-  TFile *outFile;
-  if(sample502)
-    outFile = new TFile("Hydjet502_JetResults.root","RECREATE");
-  else
-    outFile = new TFile("Hydjet276_JetResults.root","RECREATE");
-  
+  TFile *outFile = TFile::Open(outFileName,"RECREATE");
   TTree *outTree = new TTree("L1UpgradeTree","L1UpgradeTree");
 
   Int_t run, lumi, evt;
@@ -309,9 +293,19 @@ int deltaGctPhi(int phi1, int phi2)
 
 int main(int argc, char **argv)
 {
-  bool sample502 = true;
-  if(argc == 2)
-    sample502 = atoi(argv[1]);
-  L1JetEmulator(sample502);
-  return 0;
+  if(argc == 1)
+  {
+    L1JetEmulator();
+    return 0;
+  }
+  else if (argc == 3)
+  {
+    L1JetEmulator(argv[1], argv[2]);
+    return 0;
+  }
+  else
+  {
+    std::cout << "Usage: \nL1JetEmulator.exe <input_file_name> <output_file_name>" << std::endl;
+    return 1;
+  }
 }
