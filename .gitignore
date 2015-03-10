@@ -1,0 +1,7 @@
+*.root
+*_C.d
+*_C.so
+*.exe
+
+*.gif
+*.pdf
