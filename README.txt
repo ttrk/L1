@@ -6,3 +6,5 @@ The macro L1JetEmulator.C contains a copy of the L1 jet emulator. It expects as 
 makeRateCurve.C macro will draw the L1 Jet rate as a function of l1 physical pT in GeV. It can be run interactively in a root session to draw the rate curve, or in batch mode which will dump the rates to text.
 
 The macro makeTurnOn.C will match events from the algorithm output and a HiForest and then make a root file with turn on curves in it. You can use the macro plotTurnOn.C interactively in a root session to then make pretty plots out of the results.
+
+A relatively recent version of CMSSW needs to be used, CMSSW_7_4_0pre* and later should all work.
