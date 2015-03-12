@@ -28,6 +28,7 @@ void L1JetEmulator(TString l1_input = "/export/d00/scratch/luck/HydjetMB_740pre8
   Int_t region_hwPt[396], region_hwEta[396], region_hwPhi[396];
   cand regions[396];
   cand subRegions[396];
+  cand firstIterRegions[396];
   cand outJets[8];
 
   l1Tree->SetBranchAddress("event",&l1_event);
@@ -85,7 +86,8 @@ void L1JetEmulator(TString l1_input = "/export/d00/scratch/luck/HydjetMB_740pre8
     }
 
     // perform phi-ring avg background subtraction
-    CaloRingBackgroundSubtraction(regions, subRegions);
+    CaloRingBackgroundSubtraction(regions, firstIterRegions);
+    CaloRingBackgroundSubtraction(firstIterRegions, subRegions);
 
     // copy sub regions to output tree
     for(int i = 0; i < 396; ++i)

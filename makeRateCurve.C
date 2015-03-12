@@ -4,6 +4,7 @@
 #include <TCanvas.h>
 #include <TLegend.h>
 
+#include <algorithm>
 #include <iostream>
 
 void makeRateCurve(TString inFileName = "Hydjet502_JetResults.root")
@@ -24,9 +25,9 @@ void makeRateCurve(TString inFileName = "Hydjet502_JetResults.root")
   TH1D *counts = new TH1D("counts","counts;Leading L1 Jet p_{T};Count",nBins,0,maxPt);
 
   long long entries = inTree->GetEntries();
-  for(long long i = 0; i < entries; ++i)
+  for(long long k = 0; k < entries; ++k)
   {
-    inTree->GetEntry(i);
+    inTree->GetEntry(k);
 
     double maxl1pt = 0;
     double maxCenJet = l1_pt[0];
