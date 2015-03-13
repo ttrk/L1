@@ -52,7 +52,7 @@ g++ makeTurnOn.C $(root-config --cflags --libs) -Werror -Wall -Wextra -O2 -o mak
 
 ./makeTurnOn.exe $outFilePath1 "/mnt/hadoop/cms/store/user/ginnocen/Hydjet1p8_TuneDrum_Quenched_MinBias_2760GeV/HiMinBias_Forest_26June2014/d9ab4aca1923b3220eacf8ee0d550950/*.root" $outFilePath1Hist 1 || exit 1
 
-./makeTurnOn.exe $outFilePath2 "~/scratch/HydjetMB_740pre8_MCHI2_74_V3_53XBS_HiForest_partial.root" $outFilePath2Hist 1 || exit 1
+./makeTurnOn.exe $outFilePath2 "/export/d00/scratch/luck/HydjetMB_740pre8_MCHI2_74_V3_53XBS_HiForest_partial.root" $outFilePath2Hist 1 || exit 1
 
 ./makeTurnOn.exe $outFilePath3 "/mnt/hadoop/cms/store/user/luck/L1Emulator/minbiasForest_merged_v2/HiForest_PbPb_Data_minbias_fromSkim_v3.root" $outFilePath3Hist 0 || exit 1
 

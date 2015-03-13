@@ -6,11 +6,11 @@ remoteMachine="tatar@cgate.mit.edu";
 sourceFolder="out_L1EmulatorMacros";
 sourceDir="/export/d00/scratch/tatar/output/"$sourceFolder;
 sourceFiles="
-${sourceDir}/*.gif
+${sourceDir}/*.pdf
 ";         # do not copy all sort of files
 source=$remoteMachine":"$sourceFiles;
 
-destination="~/Documents/cgate/output/"$sourceFolder;
+destination="/home/kaya/Documents/cgate/output/"$sourceFolder;
 
 mkdir $destination
-scp $sourceFiles $destination
+scp $source $destination
