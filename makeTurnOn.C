@@ -132,7 +132,8 @@ void makeTurnOn(TString inL1FileName, TString inHiForestFileName, TString outFil
     fEvtTree->GetEntry(j);
     fSkimTree->GetEntry(j);
     bool goodEvent = false;
-    if((pcollisionEventSelection == 1) && (montecarlo || (pHBHENoiseFilter == 1)) && (TMath::Abs(vz) < 15))
+    //if((pcollisionEventSelection == 1) && (montecarlo || (pHBHENoiseFilter == 1)) && (TMath::Abs(vz) < 15))
+    if((montecarlo || (pHBHENoiseFilter == 1)) && (TMath::Abs(vz) < 15))
     {
       goodEvent = true;
     }

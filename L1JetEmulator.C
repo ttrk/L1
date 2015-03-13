@@ -9,16 +9,19 @@ struct cand{
   int eta;
   int phi;
 };
+const char* algoTypes[] = {"doubleIteration", "truncatedMean", "etaReflection"};
 
 void CaloRingBackgroundSubtraction(cand region[396], cand subregion[396]);
 
-void CaloRingTruncatedMean(cand region[396], cand subregion[396], bool lower16);
+void CaloRingTruncatedMean(cand region[396], cand subregion[396]);
+
+void CaloRingEtaReflected(cand region[396], cand subregion[396]);
 
 void SlidingWindowJetFinder(cand input[396], cand output[8]);
 
 int deltaGctPhi(int phi1, int phi2);
 
-void L1JetEmulator(TString l1_input = "/export/d00/scratch/luck/HydjetMB_740pre8_MCHI2_74_V3_53XBS_L1UpgradeAnalyzer_GT_MCHI2_74_V3.root", TString outFileName = "Hydjet502_JetResults.root")
+void L1JetEmulator(TString l1_input = "/export/d00/scratch/luck/HydjetMB_740pre8_MCHI2_74_V3_53XBS_L1UpgradeAnalyzer_GT_MCHI2_74_V3.root", TString outFileName = "Hydjet502_JetResults.root", TString algo = "doubleIteration")
 {
   std::cout << "Processing file: " << l1_input << std::endl;
   std::cout << "Saving to: " << outFileName << std::endl;
@@ -30,7 +33,6 @@ void L1JetEmulator(TString l1_input = "/export/d00/scratch/luck/HydjetMB_740pre8
   Int_t region_hwPt[396], region_hwEta[396], region_hwPhi[396];
   cand regions[396];
   cand subRegions[396];
-  cand firstIterRegions[396];
   cand outJets[8];
 
   l1Tree->SetBranchAddress("event",&l1_event);
@@ -87,17 +89,38 @@ void L1JetEmulator(TString l1_input = "/export/d00/scratch/luck/HydjetMB_740pre8
       regions[i].phi = region_hwPhi_[i];
     }
 
-/*
-    // perform phi-ring avg background subtraction
-    CaloRingBackgroundSubtraction(regions, firstIterRegions);
-    CaloRingBackgroundSubtraction(firstIterRegions, subRegions);
-*/
-    // perform average only lowest 16 regions in each ring
-    CaloRingTruncatedMean(regions,subRegions);
-/*
-    // perform average only upper 16 regions in each ring
-    CaloRingTruncatedMean(regions,subRegions,false);
-*/
+    if(algo.EqualTo(algoTypes[0]))
+    {
+    	// perform phi-ring avg background subtraction
+    	cand firstIterRegions[396];
+    	CaloRingBackgroundSubtraction(regions, firstIterRegions);
+    	CaloRingBackgroundSubtraction(firstIterRegions, subRegions);
+    }
+    else if(algo.EqualTo(algoTypes[1]))
+    {
+    	// perform average only lowest 16 regions in each ring
+    	CaloRingTruncatedMean(regions,subRegions);
+    	/*
+    	    // perform average only upper 16 regions in each ring
+    	    CaloRingTruncatedMean(regions,subRegions,false);
+    	*/
+    }
+    else if(algo.EqualTo(algoTypes[2]))
+    {
+		// perform average over eta reflected regions
+		CaloRingEtaReflected(regions,subRegions);
+    }
+    else
+    {
+        std::cout << "Please enter a valid algorithm type" << std::endl;
+        std::cout << "possible choices are :" << std::endl;
+        int len = (sizeof (algoTypes) / sizeof (*algoTypes));
+        for(int i=0; i<len; i++)
+        {
+        	std::cout << algoTypes[i] << std::endl;
+        }
+        exit(1);
+    }
 
     // copy sub regions to output tree
     for(int i = 0; i < 396; ++i)
@@ -163,8 +186,9 @@ void CaloRingBackgroundSubtraction(cand region[396], cand subregion[396])
   }
 }
 
-void CaloRingTruncatedMean(cand region[396], cand subregion[396], bool lower16=true)
+void CaloRingTruncatedMean(cand region[396], cand subregion[396])
 {
+  bool lower16=true;
   int etaCount[22];
   int puLevelHI[22];
   float r_puLevelHI[22];
@@ -180,7 +204,7 @@ void CaloRingTruncatedMean(cand region[396], cand subregion[396], bool lower16=t
   for(int i = 0; i < 396; ++i){
 	  if(lower16)	// average over lower 16 regions in the ring
 	  {
-		  if(region[i].phi<15)
+		  if(region[i].phi<16)
 		  {
 			  r_puLevelHI[region[i].eta] += region[i].pt;
 			  etaCount[region[i].eta]++;
@@ -204,7 +228,43 @@ void CaloRingTruncatedMean(cand region[396], cand subregion[396], bool lower16=t
   }
 
   for(int i = 0; i < 396; ++i){
-    subregion[i].pt =  puLevelHI[region[i].eta];
+	subregion[i].pt = std::max(0, region[i].pt - puLevelHI[region[i].eta]);
+    subregion[i].eta = region[i].eta;
+    subregion[i].phi = region[i].phi;
+  }
+}
+
+void CaloRingEtaReflected(cand region[396], cand subregion[396])
+{
+  int etaCount[22];
+  int puLevelHI[22];
+  float r_puLevelHI[22];
+  int etaReflectedAve=0;
+
+  // 22 values of eta
+  for(unsigned i = 0; i < 22; ++i)
+  {
+    puLevelHI[i] = 0;
+    r_puLevelHI[i] = 0.0;
+    etaCount[i] = 0;
+  }
+
+  for(int i = 0; i < 396; ++i){
+    r_puLevelHI[region[i].eta] += region[i].pt;
+    etaCount[region[i].eta]++;
+  }
+
+  for(unsigned i = 0; i < 11; ++i)
+  {
+    if(etaCount[i] != 18)
+      std::cout << "ERROR: wrong number of regions in phi ring." << std::endl;
+    etaReflectedAve = floor((r_puLevelHI[i]+r_puLevelHI[21-i])/36. + 0.5); // this floating point operation should probably be replaced
+    puLevelHI[i] = etaReflectedAve;
+    puLevelHI[21-i] = etaReflectedAve;
+  }
+
+  for(int i = 0; i < 396; ++i){
+    subregion[i].pt = std::max(0, region[i].pt - puLevelHI[region[i].eta]);
     subregion[i].eta = region[i].eta;
     subregion[i].phi = region[i].phi;
   }
@@ -357,14 +417,20 @@ int main(int argc, char **argv)
     L1JetEmulator();
     return 0;
   }
-  else if (argc == 3)
+  else if (argc == 4)
   {
-    L1JetEmulator(argv[1], argv[2]);
+    L1JetEmulator(argv[1], argv[2], argv[3]);
     return 0;
   }
   else
   {
-    std::cout << "Usage: \nL1JetEmulator.exe <input_file_name> <output_file_name>" << std::endl;
+    std::cout << "Usage: \nL1JetEmulator.exe <input_file_name> <output_file_name> <algorithm_type>" << std::endl;
+    std::cout << "possible algorithm types are :" << std::endl;
+    int len = (sizeof (algoTypes) / sizeof (*algoTypes));
+    for(int i=0; i<len; i++)
+    {
+    	std::cout << algoTypes[i] << std::endl;
+    }
     return 1;
   }
 }
