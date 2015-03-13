@@ -12,6 +12,8 @@ struct cand{
 
 void CaloRingBackgroundSubtraction(cand region[396], cand subregion[396]);
 
+void CaloRingTruncatedMean(cand region[396], cand subregion[396], bool lower16);
+
 void SlidingWindowJetFinder(cand input[396], cand output[8]);
 
 int deltaGctPhi(int phi1, int phi2);
@@ -85,9 +87,17 @@ void L1JetEmulator(TString l1_input = "/export/d00/scratch/luck/HydjetMB_740pre8
       regions[i].phi = region_hwPhi_[i];
     }
 
+/*
     // perform phi-ring avg background subtraction
     CaloRingBackgroundSubtraction(regions, firstIterRegions);
     CaloRingBackgroundSubtraction(firstIterRegions, subRegions);
+*/
+    // perform average only lowest 16 regions in each ring
+    CaloRingTruncatedMean(regions,subRegions);
+/*
+    // perform average only upper 16 regions in each ring
+    CaloRingTruncatedMean(regions,subRegions,false);
+*/
 
     // copy sub regions to output tree
     for(int i = 0; i < 396; ++i)
@@ -148,6 +158,53 @@ void CaloRingBackgroundSubtraction(cand region[396], cand subregion[396])
 
   for(int i = 0; i < 396; ++i){
     subregion[i].pt = std::max(0, region[i].pt - puLevelHI[region[i].eta]);
+    subregion[i].eta = region[i].eta;
+    subregion[i].phi = region[i].phi;
+  }
+}
+
+void CaloRingTruncatedMean(cand region[396], cand subregion[396], bool lower16=true)
+{
+  int etaCount[22];
+  int puLevelHI[22];
+  float r_puLevelHI[22];
+
+  // 22 values of eta
+  for(unsigned i = 0; i < 22; ++i)
+  {
+    puLevelHI[i] = 0;
+    r_puLevelHI[i] = 0.0;
+    etaCount[i] = 0;
+  }
+
+  for(int i = 0; i < 396; ++i){
+	  if(lower16)	// average over lower 16 regions in the ring
+	  {
+		  if(region[i].phi<15)
+		  {
+			  r_puLevelHI[region[i].eta] += region[i].pt;
+			  etaCount[region[i].eta]++;
+		  }
+	  }
+	  else
+	  {
+		  if(region[i].phi>1)
+		  {
+			  r_puLevelHI[region[i].eta] += region[i].pt;
+			  etaCount[region[i].eta]++;
+		  }
+	  }
+  }
+
+  for(unsigned i = 0; i < 22; ++i)
+  {
+    if(etaCount[i] != 16)
+      std::cout << "ERROR: wrong number of regions in phi ring." << std::endl;
+      puLevelHI[i] = floor(r_puLevelHI[i]/16. + 0.5); // this floating point operation should probably be replaced
+  }
+
+  for(int i = 0; i < 396; ++i){
+    subregion[i].pt =  puLevelHI[region[i].eta];
     subregion[i].eta = region[i].eta;
     subregion[i].phi = region[i].phi;
   }

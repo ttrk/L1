@@ -3,15 +3,14 @@
 #http://stackoverflow.com/questions/3598664/creating-a-shell-script-to-run-java-program?rq=1
 
 remoteMachine="tatar@cgate.mit.edu";
-sourceDir="~/output/out_L1EmulatorMacros";
+sourceFolder="out_L1EmulatorMacros";
+sourceDir="/export/d00/scratch/tatar/output/"$sourceFolder;
 sourceFiles="
-${sourceDir}/*.C
-${sourceDir}/*.h
-${sourceDir}/*.sh
-${sourceDir}/*.txt
+${sourceDir}/*.gif
 ";         # do not copy all sort of files
 source=$remoteMachine":"$sourceFiles;
 
-destination="~/Documents/cgate/output/";
+destination="~/Documents/cgate/output/"$sourceFolder;
 
+mkdir $destination
 scp $sourceFiles $destination

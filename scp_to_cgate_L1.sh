@@ -4,10 +4,10 @@
 
 #sourceDir="L1EmulatorMacros"
 sourceFiles="
-L1EmulatorMacros/*.C
-L1EmulatorMacros/*.h
-L1EmulatorMacros/*.sh
-L1EmulatorMacros/*.txt
+*.C
+*.h
+*.sh
+*.txt
 ";         # do not copy all sort of files
 remoteMachine="tatar@cgate.mit.edu";
 destinationInRemote="~/CMSSW_7_4_0_pre8/src/L1EmulatorMacros";
