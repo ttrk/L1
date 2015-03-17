@@ -162,7 +162,7 @@ void SlidingWindowJetFinder(cand region[396], cand output[8])
     int regionET = region[i].pt;
     int regionEta = region[i].eta;
     int regionPhi = region[i].phi;
-    //if(regionEta == 4 || regionEta == 17) regionET =0;
+    if(regionEta <= 5 || regionEta >= 16) regionET =0;
     int neighborN_et = 0;
     int neighborS_et = 0;
     int neighborE_et = 0;
@@ -175,7 +175,7 @@ void SlidingWindowJetFinder(cand region[396], cand output[8])
     for(int j = 0; j < 396; j++) {
       int neighborET = region[j].pt;
       int neighborEta = region[j].eta;
-      //if(neighborEta == 4 || neighborEta == 17) neighborET =0;
+      if(neighborEta <= 5 || neighborEta >= 16) neighborET =0;
       int neighborPhi = region[j].phi;
       if(deltaGctPhi(regionPhi, neighborPhi) == 1 &&
 	 (regionEta ) == neighborEta) {
