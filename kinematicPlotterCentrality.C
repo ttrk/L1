@@ -44,20 +44,32 @@ void kinematicPlotterCentrality(TString inL1FileName, TString inHiForestFileName
 	l1Tree->SetBranchAddress("region_hwEta", region_hwEta);
 	l1Tree->SetBranchAddress("region_hwPhi", region_hwPhi);
 
-	TChain *fEvtTree = new TChain("hiEvtAnalyzer/HiTree","fEvtTree");
-
-	fEvtTree->Add(inHiForestFileName);
+	TFile *fFile = TFile::Open(inHiForestFileName);
+	TTree *fEvtTree = (TTree*)fFile->Get("hiEvtAnalyzer/HiTree");
+	TTree *fGenParticle = (TTree*)fFile->Get("HiGenParticleAna/hi");
+	fEvtTree->AddFriend(fGenParticle);
 
 	Int_t f_evt, f_run, f_lumi;
 	Float_t vz;
 	Int_t hiBin;
 	Int_t hiNpix;
+	Float_t pt[200000];
+	Float_t eta[200000];
+	Int_t n;
+	Float_t npart;
+
+
 	fEvtTree->SetBranchAddress("evt",&f_evt);
 	fEvtTree->SetBranchAddress("run",&f_run);
 	fEvtTree->SetBranchAddress("lumi",&f_lumi);
 	fEvtTree->SetBranchAddress("vz",&vz);
 	fEvtTree->SetBranchAddress("hiBin",&hiBin);
 	fEvtTree->SetBranchAddress("hiNpix",&hiNpix);
+	fEvtTree->SetBranchAddress("pt",pt);
+	fEvtTree->SetBranchAddress("eta",eta);
+	fEvtTree->SetBranchAddress("n",&n);
+	fEvtTree->SetBranchAddress("npart",&npart);
+
 
 	TFile *outFile = new TFile(outFileName,"RECREATE");
 
@@ -77,8 +89,14 @@ void kinematicPlotterCentrality(TString inL1FileName, TString inHiForestFileName
 
 	TH1D *distSigma[CENTBINS];
 	TH1D *distPt[CENTBINS];
+	TH2D *aveptregion_aveptgen[NHISTS];
+	TH2D *aveptregion_hiNpix[NHISTS];
+
 	distSigma[0]= new TH1D("distSigma_0",";#phi index;#sigma", NHISTS,0,NHISTS);
 	distPt[0]= new TH1D("distPt_0",";#phi index;<p_{T}>",NHISTS,0,NHISTS);
+	aveptregion_aveptgen[0]=new TH2D("aveptregion_aveptgen_0",";<pt_{gen}>;<pt_{region}(#eta=0)>",100,0,2,50,0,100);
+	aveptregion_hiNpix[0]=new TH2D("aveptregion_hiNpix_0",";N_{pixels};<pt_{region}(#eta=0)>",500,0,10000,50,0,100);
+
 
 	for(int cent = 0; cent < CENTBINS; cent++)
 	{
@@ -95,6 +113,13 @@ void kinematicPlotterCentrality(TString inL1FileName, TString inHiForestFileName
 		distPt[cent] = (TH1D*)distPt[0]->Clone(Form("distPt_%i", cent));
 	}
 
+	for(int i = 0; i < NHISTS; i++)
+	{   
+		if(i ==0 ) continue;
+		aveptregion_aveptgen[i]=(TH2D*)aveptregion_aveptgen[0]->Clone(Form("aveptregion_aveptgen_%i",i));
+		aveptregion_hiNpix[i]=(TH2D*)aveptregion_hiNpix[0]->Clone(Form("aveptregion_hiNpix_%i",i));
+
+	}
 
 	// Make the event-matching map ************
 	EventMatchingCMS *matcher = new EventMatchingCMS();
@@ -143,6 +168,7 @@ void kinematicPlotterCentrality(TString inL1FileName, TString inHiForestFileName
 		double maxValue[NHISTS];
 		double minLocation[NHISTS];
 		double minValue[NHISTS];
+		double sumsptgen=0;
 
 		for(int i = 0; i < NHISTS; i++)
 		{
@@ -171,6 +197,10 @@ void kinematicPlotterCentrality(TString inL1FileName, TString inHiForestFileName
 			}
 		}
 
+		for(int i = 0; i < n; i++){
+			sumsptgen+=pt[i];
+		}
+
 		for(int i = 0; i < NHISTS; i++)
 		{
 			double ebesigma = TMath::Sqrt( (sums2[i]/18.) - ((sums[i]/18.0)*(sums[i]/18.0)) );
@@ -180,6 +210,9 @@ void kinematicPlotterCentrality(TString inL1FileName, TString inHiForestFileName
 			if(phidelta > 9)
 				phidelta = 18 - phidelta;
 			phiDelta[centBin][i]->Fill(phidelta);
+
+			aveptregion_aveptgen[i]->Fill(sumsptgen/n,sums[i]/18.);
+			aveptregion_hiNpix[i]->Fill(hiNpix,sums[i]/18.);
 		}
 	}
 
@@ -207,6 +240,12 @@ void kinematicPlotterCentrality(TString inL1FileName, TString inHiForestFileName
 		}
 		distSigma[cent]->Write();
 		distPt[cent]->Write();
+	}
+
+	for(int i = 0; i < NHISTS; i++)
+	{
+		aveptregion_aveptgen[i]->Write();
+		aveptregion_hiNpix[i]->Write();
 	}
 
 	std::cout << "Matching entries: " << count << std::endl;
