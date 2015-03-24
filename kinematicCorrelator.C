@@ -21,6 +21,8 @@ const int MAXL1JETS = 8;
 const int MAXJETS = 500;
 const Int_t THRESHOLDS = 11;
 const Double_t L1_THRESHOLD[THRESHOLDS] = {16,20,32,36,40,44,52,68,80,92,128};
+  Double_t rctEtaMap[23] = {-5.100, -4.500, -4.000, -3.500, -3.000, -2.172, -1.740, -1.392, -1.044, -0.696,-0.348,  0.000,  0.348,  0.696,  1.044,  1.392,  1.740,  2.172,  3.000,  3.500, 4.000,  4.500,  5.10}; 
+
 
 void kinematicCorrelator(TString inL1FileName, TString inHiForestFileName, TString outFileName)
 {
@@ -81,8 +83,8 @@ void kinematicCorrelator(TString inL1FileName, TString inHiForestFileName, TStri
 
 	aveptregion_aveptgen[0]=new TH2D("aveptregion_aveptgen_0",";<pt_{gen}>;<pt_{region}(#eta=0)>",100,0,2,50,0,100);
 	aveptregion_hiNpix[0]=new TH2D("aveptregion_hiNpix_0",";N_{pixels};<pt_{region}(#eta=0)>",500,0,10000,50,0,100);
-	aveptregion_multgen_lowpt[0]=new TH2D("aveptregion_multgen_lowpt_0",";N_{part}(p_{t}<0.8 GeV);<pt_{region}(#eta=0)>",500,0,10000,50,0,200);
-	aveptregion_multgen_highpt[0]=new TH2D("aveptregion_multgen_highpt_0",";N_{part}(p_{t}>0.8 GeV);<pt_{region}(#eta=0)>",500,0,1000,50,0,200);
+	aveptregion_multgen_lowpt[0]=new TH2D("aveptregion_multgen_lowpt_0",";N_{part}(p_{t}<0.8 GeV);<pt_{region}(#eta=0)>",500,0,500,50,0,200);
+	aveptregion_multgen_highpt[0]=new TH2D("aveptregion_multgen_highpt_0",";N_{part}(p_{t}>0.8 GeV);<pt_{region}(#eta=0)>",500,0,500,50,0,200);
 
 	for(int i = 0; i < NHISTS; i++)
 	{   
@@ -130,12 +132,14 @@ void kinematicCorrelator(TString inL1FileName, TString inHiForestFileName, TStri
 
 		double sums[NHISTS];
 		double sumsptgen=0;
-		int multgenlowpt=0;
-		int multgenhighpt=0;
+		int multgenlowpt[NHISTS];
+		int multgenhighpt[NHISTS];
 
 		for(int i = 0; i < NHISTS; i++)
 		{
 			sums[i] = 0.;
+			multgenlowpt[i] = 0.;
+			multgenhighpt[i] = 0.;
 		}
 		for(int i = 0; i < 396; i++)
 		{
@@ -144,16 +148,20 @@ void kinematicCorrelator(TString inL1FileName, TString inHiForestFileName, TStri
 
 		for(int i = 0; i < n; i++){
 			sumsptgen+=pt[i];
-			if(pt[i]>1.5) multgenhighpt++;
-			else multgenlowpt++;
+			for(int m = 0; m < 22; m++){
+			  if(eta[i]>rctEtaMap[m] && eta[i]<rctEtaMap[m+1]){
+			    if(pt[i]>0.8) multgenhighpt[m]++;
+			    else multgenlowpt[m]++;
+			  }
+			}
 		}
 
 		for(int i = 0; i < NHISTS; i++)
 		{
 			aveptregion_aveptgen[i]->Fill(sumsptgen/n,sums[i]/18.);
 			aveptregion_hiNpix[i]->Fill(hiNpix,sums[i]/18.);
-			aveptregion_multgen_lowpt[i]->Fill(multgenlowpt,sums[i]/18.);
-			aveptregion_multgen_highpt[i]->Fill(multgenhighpt,sums[i]/18.);
+			aveptregion_multgen_lowpt[i]->Fill(multgenlowpt[i],sums[i]/18.);
+			aveptregion_multgen_highpt[i]->Fill(multgenhighpt[i],sums[i]/18.);
 		}
 	}
 
