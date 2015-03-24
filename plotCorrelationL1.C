@@ -6,6 +6,9 @@ void plotCorrelationL1(){
   const int NHISTS = 22;
   TH2D *aveptregion_aveptgen[NHISTS];
   TH2D *aveptregion_hiNpix[NHISTS];
+  TH2D *aveptregion_multgen_lowpt[NHISTS];
+  TH2D *aveptregion_multgen_highpt[NHISTS];
+
 
   for(int i = 0; i < NHISTS; i++){
     aveptregion_aveptgen[i] = (TH2D*)filPP->Get(Form("aveptregion_aveptgen_%d",i));
@@ -13,6 +16,10 @@ void plotCorrelationL1(){
 	aveptregion_aveptgen[i]->GetYaxis()->SetTitle(Form("<pt_{region} (#eta=%d)>",i));
 	aveptregion_hiNpix[i]->GetYaxis()->SetTitle(Form("<pt_{region} (#eta=%d)>",i));
 	aveptregion_hiNpix[i]->GetXaxis()->SetLabelSize(0.03);
+	
+    aveptregion_multgen_lowpt[i] = (TH2D*)filPP->Get(Form("aveptregion_multgen_lowpt_%d",i));
+    aveptregion_multgen_highpt[i] = (TH2D*)filPP->Get(Form("aveptregion_multgen_highpt_%d",i));
+
 
   }
 
@@ -47,6 +54,39 @@ void plotCorrelationL1(){
   canvashiNpix->cd(6);
   aveptregion_hiNpix[20]->Draw("colz");
   canvashiNpix->SaveAs("canvashiNpix.pdf");
+
+  TCanvas*canvashimultgen_lowpt=new TCanvas("canvashimultgen_lowpt","canvashimultgen_lowpt",1200,800);
+  canvashimultgen_lowpt->Divide(3,2);
+  canvashimultgen_lowpt->cd(1);
+  aveptregion_multgen_lowpt[0]->Draw("colz");
+  canvashimultgen_lowpt->cd(2);
+  aveptregion_multgen_lowpt[2]->Draw("colz");
+  canvashimultgen_lowpt->cd(3);
+  aveptregion_multgen_lowpt[4]->Draw("colz");
+  canvashimultgen_lowpt->cd(4);
+  aveptregion_multgen_lowpt[8]->Draw("colz");
+  canvashimultgen_lowpt->cd(5);
+  aveptregion_multgen_lowpt[15]->Draw("colz");
+  canvashimultgen_lowpt->cd(6);
+  aveptregion_multgen_lowpt[20]->Draw("colz");
+  canvashimultgen_lowpt->SaveAs("canvashimultgen_lowpt.pdf");
+
+
+  TCanvas*canvashimultgen_highpt=new TCanvas("canvashimultgen_highpt","canvashimultgen_highpt",1200,800);
+  canvashimultgen_highpt->Divide(3,2);
+  canvashimultgen_highpt->cd(1);
+  aveptregion_multgen_highpt[0]->Draw("colz");
+  canvashimultgen_highpt->cd(2);
+  aveptregion_multgen_highpt[2]->Draw("colz");
+  canvashimultgen_highpt->cd(3);
+  aveptregion_multgen_highpt[4]->Draw("colz");
+  canvashimultgen_highpt->cd(4);
+  aveptregion_multgen_highpt[8]->Draw("colz");
+  canvashimultgen_highpt->cd(5);
+  aveptregion_multgen_highpt[15]->Draw("colz");
+  canvashimultgen_highpt->cd(6);
+  aveptregion_multgen_highpt[20]->Draw("colz");
+  canvashimultgen_highpt->SaveAs("canvashimultgen_highpt.pdf");
 
   
 }

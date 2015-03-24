@@ -76,15 +76,21 @@ void kinematicCorrelator(TString inL1FileName, TString inHiForestFileName, TStri
 	const int NHISTS = 22;
 	TH2D *aveptregion_aveptgen[NHISTS];
 	TH2D *aveptregion_hiNpix[NHISTS];
+	TH2D *aveptregion_multgen_lowpt[NHISTS];
+	TH2D *aveptregion_multgen_highpt[NHISTS];
 
 	aveptregion_aveptgen[0]=new TH2D("aveptregion_aveptgen_0",";<pt_{gen}>;<pt_{region}(#eta=0)>",100,0,2,50,0,100);
 	aveptregion_hiNpix[0]=new TH2D("aveptregion_hiNpix_0",";N_{pixels};<pt_{region}(#eta=0)>",500,0,10000,50,0,100);
+	aveptregion_multgen_lowpt[0]=new TH2D("aveptregion_multgen_lowpt_0",";N_{part}(p_{t}<0.8 GeV);<pt_{region}(#eta=0)>",500,0,10000,50,0,200);
+	aveptregion_multgen_highpt[0]=new TH2D("aveptregion_multgen_highpt_0",";N_{part}(p_{t}>0.8 GeV);<pt_{region}(#eta=0)>",500,0,1000,50,0,200);
 
 	for(int i = 0; i < NHISTS; i++)
 	{   
 		if(i ==0 ) continue;
 		aveptregion_aveptgen[i]=(TH2D*)aveptregion_aveptgen[0]->Clone(Form("aveptregion_aveptgen_%i",i));
 		aveptregion_hiNpix[i]=(TH2D*)aveptregion_hiNpix[0]->Clone(Form("aveptregion_hiNpix_%i",i));
+		aveptregion_multgen_lowpt[i]=(TH2D*)aveptregion_multgen_lowpt[0]->Clone(Form("aveptregion_multgen_lowpt_%i",i));
+		aveptregion_multgen_highpt[i]=(TH2D*)aveptregion_multgen_highpt[0]->Clone(Form("aveptregion_multgen_highpt_%i",i));
 
 	}
 
@@ -124,6 +130,8 @@ void kinematicCorrelator(TString inL1FileName, TString inHiForestFileName, TStri
 
 		double sums[NHISTS];
 		double sumsptgen=0;
+		int multgenlowpt=0;
+		int multgenhighpt=0;
 
 		for(int i = 0; i < NHISTS; i++)
 		{
@@ -136,12 +144,16 @@ void kinematicCorrelator(TString inL1FileName, TString inHiForestFileName, TStri
 
 		for(int i = 0; i < n; i++){
 			sumsptgen+=pt[i];
+			if(pt[i]>1.5) multgenhighpt++;
+			else multgenlowpt++;
 		}
 
 		for(int i = 0; i < NHISTS; i++)
 		{
 			aveptregion_aveptgen[i]->Fill(sumsptgen/n,sums[i]/18.);
 			aveptregion_hiNpix[i]->Fill(hiNpix,sums[i]/18.);
+			aveptregion_multgen_lowpt[i]->Fill(multgenlowpt,sums[i]/18.);
+			aveptregion_multgen_highpt[i]->Fill(multgenhighpt,sums[i]/18.);
 		}
 	}
 
@@ -151,6 +163,8 @@ void kinematicCorrelator(TString inL1FileName, TString inHiForestFileName, TStri
 	{
 		aveptregion_aveptgen[i]->Write();
 		aveptregion_hiNpix[i]->Write();
+		aveptregion_multgen_lowpt[i]->Write();
+		aveptregion_multgen_highpt[i]->Write();
 	}
 
 	std::cout << "Matching entries: " << count << std::endl;
