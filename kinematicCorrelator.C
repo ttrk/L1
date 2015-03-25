@@ -21,8 +21,10 @@ const int MAXL1JETS = 8;
 const int MAXJETS = 500;
 const Int_t THRESHOLDS = 11;
 const Double_t L1_THRESHOLD[THRESHOLDS] = {16,20,32,36,40,44,52,68,80,92,128};
+  Double_t rctEtaMap[23] = {-5.100, -4.500, -4.000, -3.500, -3.000, -2.172, -1.740, -1.392, -1.044, -0.696,-0.348,  0.000,  0.348,  0.696,  1.044,  1.392,  1.740,  2.172,  3.000,  3.500, 4.000,  4.500,  5.10}; 
 
-void kinematicPlotterCentrality(TString inL1FileName, TString inHiForestFileName, TString outFileName)
+
+void kinematicCorrelator(TString inL1FileName, TString inHiForestFileName, TString outFileName)
 {
 	TFile *lFile = TFile::Open(inL1FileName);
 	TTree *l1Tree = (TTree*)lFile->Get("L1UpgradeAnalyzer/L1UpgradeTree");
@@ -74,50 +76,27 @@ void kinematicPlotterCentrality(TString inL1FileName, TString inHiForestFileName
 	TFile *outFile = new TFile(outFileName,"RECREATE");
 
 	const int NHISTS = 22;
-	const int CENTBINS = 4;
-	const int CENTCUT[CENTBINS] = {0, 10000, 20000, 30000};
-
-	TH1D *ebeSigma[CENTBINS][NHISTS];
-	TH1D *range[CENTBINS][NHISTS];
-	TH1D *phiDelta[CENTBINS][NHISTS];
-	TH1D *ptDists[CENTBINS][NHISTS];
-
-	range[0][0] = new TH1D("range_0_0","range;max pT - min pT",1024,0,1024);
-	phiDelta[0][0] = new TH1D("phiDelta_0_0","phiDelta;PhiMax - PhiMin",10,0,10);
-	ebeSigma[0][0] = new TH1D("ebeSigma_0_0","ebeSigma;#sigma;count",300,0,50);
-	ptDists[0][0] = new TH1D("ptDists_0_0",";region_hwPt",1024,0,1024);
-
-	TH1D *distSigma[CENTBINS];
-	TH1D *distPt[CENTBINS];
 	TH2D *aveptregion_aveptgen[NHISTS];
 	TH2D *aveptregion_hiNpix[NHISTS];
+	
+	TH2D *aveptregion_multgen_lowpt[NHISTS];
+	TH2D *aveptregion_multgen_middlept[NHISTS];
+	TH2D *aveptregion_multgen_highpt[NHISTS];
 
-	distSigma[0]= new TH1D("distSigma_0",";#phi index;#sigma", NHISTS,0,NHISTS);
-	distPt[0]= new TH1D("distPt_0",";#phi index;<p_{T}>",NHISTS,0,NHISTS);
 	aveptregion_aveptgen[0]=new TH2D("aveptregion_aveptgen_0",";<pt_{gen}>;<pt_{region}(#eta=0)>",100,0,2,50,0,100);
 	aveptregion_hiNpix[0]=new TH2D("aveptregion_hiNpix_0",";N_{pixels};<pt_{region}(#eta=0)>",500,0,10000,50,0,100);
-
-
-	for(int cent = 0; cent < CENTBINS; cent++)
-	{
-		for(int i = 0; i < NHISTS; i++)
-		{
-			if(i == 0 && cent ==0) continue;
-			ebeSigma[cent][i] = (TH1D*)ebeSigma[0][0]->Clone(Form("ebeSigma_%i_%i",cent,i));
-			ptDists[cent][i] = (TH1D*)ptDists[0][0]->Clone(Form("ptDists_%i_%i",cent,i));
-			range[cent][i] = (TH1D*)range[0][0]->Clone(Form("range_%i_%i",cent,i));
-			phiDelta[cent][i] = (TH1D*)phiDelta[0][0]->Clone(Form("phiDelta_%i_%i",cent,i));
-		}
-		if(cent ==0 ) continue;
-		distSigma[cent] = (TH1D*)distSigma[0]->Clone(Form("distSigma_%i", cent));
-		distPt[cent] = (TH1D*)distPt[0]->Clone(Form("distPt_%i", cent));
-	}
+	aveptregion_multgen_lowpt[0]=new TH2D("aveptregion_multgen_lowpt_0",";N_{part}(p_{t}<0.6 GeV);<pt_{region}(#eta=0)>",500,0,500,50,0,200);
+	aveptregion_multgen_middlept[0]=new TH2D("aveptregion_multgen_middlept_0",";N_{part}(0.6<p_{t}<1.0 GeV);<pt_{region}(#eta=0)>",500,0,500,50,0,200);
+	aveptregion_multgen_highpt[0]=new TH2D("aveptregion_multgen_highpt_0",";N_{part}(p_{t}>1.0 GeV);<pt_{region}(#eta=0)>",500,0,500,50,0,200);
 
 	for(int i = 0; i < NHISTS; i++)
 	{   
 		if(i ==0 ) continue;
 		aveptregion_aveptgen[i]=(TH2D*)aveptregion_aveptgen[0]->Clone(Form("aveptregion_aveptgen_%i",i));
 		aveptregion_hiNpix[i]=(TH2D*)aveptregion_hiNpix[0]->Clone(Form("aveptregion_hiNpix_%i",i));
+		aveptregion_multgen_lowpt[i]=(TH2D*)aveptregion_multgen_lowpt[0]->Clone(Form("aveptregion_multgen_lowpt_%i",i));
+		aveptregion_multgen_middlept[i]=(TH2D*)aveptregion_multgen_middlept[0]->Clone(Form("aveptregion_multgen_middlept_%i",i));
+		aveptregion_multgen_highpt[i]=(TH2D*)aveptregion_multgen_highpt[0]->Clone(Form("aveptregion_multgen_highpt_%i",i));
 
 	}
 
@@ -155,97 +134,54 @@ void kinematicPlotterCentrality(TString inL1FileName, TString inHiForestFileName
 		l1Tree->GetEntry(l1Entry);
 		count++;
 
-		int centBin = 0;
-		for(int i = 0; i < CENTBINS; i++)
-		{
-			if(hiNpix > CENTCUT[i])
-				centBin = i;
-		}
-
 		double sums[NHISTS];
-		double sums2[NHISTS];
-		double maxLocation[NHISTS];
-		double maxValue[NHISTS];
-		double minLocation[NHISTS];
-		double minValue[NHISTS];
 		double sumsptgen=0;
+		int multgenlowpt[NHISTS];
+		int multgenmiddlept[NHISTS];
+		int multgenhighpt[NHISTS];
 
 		for(int i = 0; i < NHISTS; i++)
 		{
 			sums[i] = 0.;
-			sums2[i] = 0.;
-			maxLocation[i] = -1;
-			maxValue[i] = -1;
-			minLocation[i] = -1;
-			minValue[i] = -1;
+			multgenlowpt[i] = 0.;
+			multgenmiddlept[i] = 0.;
+			multgenhighpt[i] = 0.;
 		}
 		for(int i = 0; i < 396; i++)
 		{
-			ptDists[centBin][region_hwEta[i]]->Fill(region_hwPt[i]);
 			sums[region_hwEta[i]] += region_hwPt[i];
-			sums2[region_hwEta[i]] += (region_hwPt[i] * region_hwPt[i]);
-
-			if(maxValue[region_hwEta[i]] < region_hwPt[i])
-			{
-				maxValue[region_hwEta[i]] = region_hwPt[i];
-				maxLocation[region_hwEta[i]] = region_hwPhi[i];
-			}
-			if(minValue[region_hwEta[i]] > region_hwPt[i])
-			{
-				minValue[region_hwEta[i]] = region_hwPt[i];
-				minLocation[region_hwEta[i]] = region_hwPhi[i];
-			}
 		}
 
 		for(int i = 0; i < n; i++){
 			sumsptgen+=pt[i];
+			for(int m = 0; m < 22; m++){
+			  if(eta[i]>rctEtaMap[m] && eta[i]<rctEtaMap[m+1]){
+			    if(pt[i]<0.6) multgenlowpt[m]++;
+			    else if(pt[i]>0.6 && pt[i]<1.0) multgenmiddlept[m]++;
+			    else if (pt[i]>1.0) multgenhighpt[m]++;
+			  }
+			}
 		}
 
 		for(int i = 0; i < NHISTS; i++)
 		{
-			double ebesigma = TMath::Sqrt( (sums2[i]/18.) - ((sums[i]/18.0)*(sums[i]/18.0)) );
-			ebeSigma[centBin][i]->Fill(ebesigma);
-			range[centBin][i]->Fill(maxValue[i] - minValue[i]);
-			double phidelta = TMath::Abs(maxLocation[i] - minLocation[i]);
-			if(phidelta > 9)
-				phidelta = 18 - phidelta;
-			phiDelta[centBin][i]->Fill(phidelta);
-
 			aveptregion_aveptgen[i]->Fill(sumsptgen/n,sums[i]/18.);
 			aveptregion_hiNpix[i]->Fill(hiNpix,sums[i]/18.);
-		}
-	}
-
-	for(int cent = 0; cent < CENTBINS; cent++)
-	{
-		for(int i = 0; i < NHISTS; i++)
-		{
-			distSigma[cent]->SetBinContent(i+1, ptDists[cent][i]->GetStdDev());
-			distSigma[cent]->SetBinError(i+1, ptDists[cent][i]->GetStdDevError());
-
-			distPt[cent]->SetBinContent(i+1, ptDists[cent][i]->GetMean());
-			distPt[cent]->SetBinError(i+1, ptDists[cent][i]->GetMeanError());
+			aveptregion_multgen_lowpt[i]->Fill(multgenlowpt[i],sums[i]/18.);
+			aveptregion_multgen_middlept[i]->Fill(multgenmiddlept[i],sums[i]/18.);
+			aveptregion_multgen_highpt[i]->Fill(multgenhighpt[i],sums[i]/18.);
 		}
 	}
 
 	outFile->cd();
-	for(int cent = 0; cent < CENTBINS; cent++)
-	{
-		for(int i = 0; i < NHISTS; i++)
-		{
-			ptDists[cent][i]->Write();
-			ebeSigma[cent][i]->Write();
-			range[cent][i]->Write();
-			phiDelta[cent][i]->Write();
-		}
-		distSigma[cent]->Write();
-		distPt[cent]->Write();
-	}
 
 	for(int i = 0; i < NHISTS; i++)
 	{
 		aveptregion_aveptgen[i]->Write();
 		aveptregion_hiNpix[i]->Write();
+		aveptregion_multgen_lowpt[i]->Write();
+		aveptregion_multgen_middlept[i]->Write();
+		aveptregion_multgen_highpt[i]->Write();
 	}
 
 	std::cout << "Matching entries: " << count << std::endl;
@@ -258,7 +194,7 @@ int main(int argc, char **argv)
 {
 	if(argc == 4)
 	{
-		kinematicPlotterCentrality(argv[1], argv[2], argv[3]);
+		kinematicCorrelator(argv[1], argv[2], argv[3]);
 		return 0;
 	}
 	else
