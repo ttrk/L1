@@ -171,7 +171,7 @@ void makeTurnOn(TString inL1Name, TString inHiForestFileName, TString outFileNam
     {
       for(int i = 0; i < num_gen; ++i)
       {
-	if(TMath::Abs(f_eta[i]) > 2.0) continue;
+	if(TMath::Abs(geneta[i]) > 2.0) continue;
 	if(genpt[i] > maxfpt)
 	  maxfpt = genpt[i];
       }
