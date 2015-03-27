@@ -1,5 +1,9 @@
 #include <TFile.h>
+#include <TChain.h>
 #include <TTree.h>
+#include <TMath.h>
+#include <TH2F.h>
+
 #include <iostream>
 #include <vector>
 #include <algorithm>
@@ -17,12 +21,12 @@ void RegionJetFinder(cand input[396], cand output[8]);
 
 int deltaGctPhi(int phi1, int phi2);
 
-void L1JetEmulator(TString l1_input = "/export/d00/scratch/luck/HydjetMB_740pre8_MCHI2_74_V3_53XBS_L1UpgradeAnalyzer_GT_MCHI2_74_V3.root", TString outFileName = "Hydjet502_JetResults.root")
+void L1JetEmulator(TString forest_input = "/export/d00/scratch/luck/HydjetMB_740pre8_MCHI2_74_V3_53XBS_L1UpgradeAnalyzer_GT_MCHI2_74_V3.root", TString outFileName = "Hydjet502_JetResults.root")
 {
-  std::cout << "Processing file: " << l1_input << std::endl;
+  std::cout << "Processing file: " << forest_input << std::endl;
   std::cout << "Saving to: " << outFileName << std::endl;
   
-  TFile *lFile = TFile::Open(l1_input);
+  TFile *lFile = TFile::Open(forest_input);
   //TTree *l1Tree = (TTree*)lFile->Get("L1UpgradeAnalyzer/L1UpgradeTree");
   
   // Int_t l1_event, l1_run, l1_lumi;
@@ -34,26 +38,28 @@ void L1JetEmulator(TString l1_input = "/export/d00/scratch/luck/HydjetMB_740pre8
   const int nEta = 22;
   const int nPhi = 18;
 
-  TTree *fTowerTree;
-  fTowerTree = (TTree*)lFile->Get("rechitanalyzer/tower");
-  
+  TChain *fTowerTree = new TChain("rechitanalyzer/tower","fTowerTree");
+  TChain *fEvtTree =  new TChain("hiEvtAnalyzer/HiTree","fEvtTree");
+  //fTowerTree = (TTree*)lFile->Get("rechitanalyzer/tower");
+  fTowerTree->Add(forest_input);
+  fEvtTree->Add(forest_input);
+
+  Int_t f_evt, f_run, f_lumi;
+
+  fEvtTree->SetBranchAddress("evt",&f_evt);
+  fEvtTree->SetBranchAddress("run",&f_run);
+  fEvtTree->SetBranchAddress("lumi",&f_lumi);
+   
   Int_t f_nTow = -1;
   Float_t f_eta[10000];
   Float_t f_phi[10000];
   Float_t f_et[10000];
 
-  fTree->SetBranchAddress("eta"                     , &f_eta);
-  fTree->SetBranchAddress("phi"                     , &f_phi);
-  fTree->SetBranchAddress("et"                      , &f_et);
-  fTree->SetBranchAddress("n"                       , &f_nTow);
+  fTowerTree->SetBranchAddress("eta"                     , &f_eta);
+  fTowerTree->SetBranchAddress("phi"                     , &f_phi);
+  fTowerTree->SetBranchAddress("et"                      , &f_et);
+  fTowerTree->SetBranchAddress("n"                       , &f_nTow);
 
-  Double_t etaMap[65] = {-5.100, -4.500, -4.000, -3.500, -3.000, -2.725, -2.500, -2.336, -2.172, -2.051,
-		       	 -1.930, -1.835, -1.740, -1.653, -1.566, -1.479, -1.392, -1.305, -1.218, -1.131, 
-		       	 -1.044, -0.957, -0.870, -0.783, -0.696, -0.609, -0.522, -0.435, -0.348, -0.261, 
-		       	 -0.174, -0.087,  0.000,  0.087,  0.174,  0.261,  0.348,  0.435,  0.522,  0.609, 
-			 0.696,  0.783,  0.870,  0.957,  1.044,  1.131,  1.218,  1.305,  1.392,  1.479, 
-			 1.566,  1.653,  1.740,  1.835,  1.930,  2.051,  2.172,  2.336,  2.500,  2.725, 
-			 3.000,  3.500,  4.000,  4.500,  5.100};
   Double_t rctEtaMap[23] = {-5.100, -4.500, -4.000, -3.500, -3.000, -2.172, -1.740, -1.392, -1.044, -0.696,
 			    -0.348,  0.000,  0.348,  0.696,  1.044,  1.392,  1.740,  2.172,  3.000,  3.500,
 			    4.000,  4.500,  5.10}; 
@@ -68,13 +74,6 @@ void L1JetEmulator(TString l1_input = "/export/d00/scratch/luck/HydjetMB_740pre8
   cand subRegions[396];
   cand outJets[8];
 
-  // l1Tree->SetBranchAddress("event",&l1_event);
-  // l1Tree->SetBranchAddress("lumi",&l1_lumi);
-  // l1Tree->SetBranchAddress("run",&l1_run);
-  // l1Tree->SetBranchAddress("region_hwPt", region_hwPt);
-  // l1Tree->SetBranchAddress("region_hwEta", region_hwEta);
-  // l1Tree->SetBranchAddress("region_hwPhi", region_hwPhi);
-
   TFile *outFile = TFile::Open(outFileName,"RECREATE");
   TTree *outTree = new TTree("L1UpgradeTree","L1UpgradeTree");
 
@@ -86,7 +85,7 @@ void L1JetEmulator(TString l1_input = "/export/d00/scratch/luck/HydjetMB_740pre8
 
   outTree->Branch("run",&run,"run/I");
   outTree->Branch("lumi",&lumi,"lumi/I");
-  outTree->Branch("evt",&evt,"evt/I");
+  outTree->Branch("event",&evt,"event/I");
 
   outTree->Branch("region_hwPt",region_hwPt_,"region_hwPt[396]/I");
   outTree->Branch("region_hwPhi",region_hwPhi_,"region_hwPhi[396]/I");
@@ -104,6 +103,11 @@ void L1JetEmulator(TString l1_input = "/export/d00/scratch/luck/HydjetMB_740pre8
   for(Long64_t j = 0; j < l_entries; ++j)
   {
     fTowerTree->GetEntry(j);
+    fEvtTree->GetEntry(j);
+
+    run = f_run;
+    evt = f_evt;
+    lumi = f_lumi;
 
     for(int itow = 0; itow < f_nTow; ++itow)
     {
@@ -132,15 +136,15 @@ void L1JetEmulator(TString l1_input = "/export/d00/scratch/luck/HydjetMB_740pre8
 	regions[nReg].eta = ieta;
 	regions[nReg].phi = iphi;
 
-	region_hwPt_[i] = regions[nReg].pt;
-	region_hwEta_[i] = regions[nReg].eta;
-	region_hwPhi_[i] = regions[nReg].phi = iphi;
+	region_hwPt_[nReg] = regions[nReg].pt;
+	region_hwEta_[nReg] = regions[nReg].eta;
+	region_hwPhi_[nReg] = regions[nReg].phi;
 	nReg++;
       }
     }
     
     hFtmpReb->Reset();
-    hL1tmp->Reset();
+    hFtmp->Reset();
 
     // perform phi-ring avg background subtraction
     CaloRingBackgroundSubtraction(regions, subRegions);
