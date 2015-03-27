@@ -163,7 +163,7 @@ void makeTurnOn(TString inL1FileName, TString inHiForestFileName, TString outFil
     {
       for(int i = 0; i < f_num; ++i)
       {
-	//if(TMath::Abs(PuJet_eta[i]) > 2) continue;
+	if(TMath::Abs(f_eta[i]) > 2) continue;
 	if(f_pt[i] > maxfpt) {
 	  maxfpt = f_pt[i];
 	}
@@ -173,7 +173,7 @@ void makeTurnOn(TString inL1FileName, TString inHiForestFileName, TString outFil
     {
       for(int i = 0; i < num_gen; ++i)
       {
-	//if(TMath::Abs(genJet_eta[i]) > 2.0) continue;
+	if(TMath::Abs(geneta[i]) > 2.0) continue;
 	if(genpt[i] > maxfpt)
 	  maxfpt = genpt[i];
       }
