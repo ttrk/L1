@@ -31,7 +31,7 @@ void makeTurnOn(TString inL1FileName, TString inHiForestFileName, TString outFil
   Int_t l1_hwPt[MAXL1JETS], l1_hwEta[MAXL1JETS], l1_hwPhi[MAXL1JETS];
   Int_t l1_pt[MAXL1JETS];
 
-  l1Tree->SetBranchAddress("evt",&l1_event);
+  l1Tree->SetBranchAddress("event",&l1_event);
   l1Tree->SetBranchAddress("run",&l1_run);
   l1Tree->SetBranchAddress("lumi",&l1_lumi);
   l1Tree->SetBranchAddress("jet_hwPt",l1_hwPt);

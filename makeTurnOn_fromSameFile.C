@@ -22,7 +22,7 @@ const int MAXJETS = 500;
 const Int_t THRESHOLDS = 11;
 const Double_t L1_THRESHOLD[THRESHOLDS] = {16,20,32,36,40,44,52,68,80,92,128};
 
-void makeTurnOn(TString inHiForestFileName, TString outFileName, bool montecarlo = false)
+void makeTurnOn(TString inL1Name, TString inHiForestFileName, TString outFileName, bool montecarlo = false)
 {
   TFile *outFile = new TFile(outFileName,"RECREATE");
 
@@ -40,16 +40,18 @@ void makeTurnOn(TString inHiForestFileName, TString outFileName, bool montecarlo
   // l1Tree->Add(inHiForestFileName);
 
   TFile *inFile = TFile::Open(inHiForestFileName);
+  TFile *inL1File = TFile::Open(inL1Name);
   TTree *f1Tree = (TTree*)inFile->Get("akPu3CaloJetAnalyzer/t");
   TTree *fEvtTree = (TTree*)inFile->Get("hiEvtAnalyzer/HiTree");
   TTree *fSkimTree = (TTree*)inFile->Get("skimanalysis/HltTree");
-  TTree *l1Tree = (TTree*)inFile->Get("L1UpgradeAnalyzer/L1UpgradeTree");
+  //TTree *l1Tree = (TTree*)inFile->Get("L1UpgradeAnalyzer/L1UpgradeTree");
+  TTree *l1Tree = (TTree*)inL1File->Get("L1UpgradeTree");
 
   //f1Tree->AddFriend(l1Tree);
 
   Int_t l1_event, l1_run, l1_lumi;
   Int_t l1_hwPt[MAXL1JETS], l1_hwEta[MAXL1JETS], l1_hwPhi[MAXL1JETS];
-  Double_t l1_pt[MAXL1JETS];
+  Int_t l1_pt[MAXL1JETS];
 
   l1Tree->SetBranchAddress("event",&l1_event);
   l1Tree->SetBranchAddress("run",&l1_run);
@@ -134,7 +136,7 @@ void makeTurnOn(TString inHiForestFileName, TString outFileName, bool montecarlo
     fSkimTree->GetEntry(j);
     bool goodEvent = false;
     // 5.02 TeV Hydjet missing pcollisionEventSelection for now
-    if((pcollisionEventSelection == 1) && (montecarlo || (pHBHENoiseFilter == 1)) && (TMath::Abs(vz) < 15))
+    //if((pcollisionEventSelection == 1) && (montecarlo || (pHBHENoiseFilter == 1)) && (TMath::Abs(vz) < 15))
     if((montecarlo || (pHBHENoiseFilter == 1)) && (TMath::Abs(vz) < 15))
     {
       goodEvent = true;
@@ -186,19 +188,8 @@ void makeTurnOn(TString inHiForestFileName, TString outFileName, bool montecarlo
 
     for(int i = 0; i < THRESHOLDS; ++i)
     {
-      for(int k = 0; k < 3; ++k)
-      {
-	std::cout << accepted[i][k]->GetName() << std::endl;
-      }
-    }
-
-
-    for(int i = 0; i < THRESHOLDS; ++i)
-    {
       if(maxl1pt>L1_THRESHOLD[i])
       {
-	std::cout << i << " " << maxfpt << std::endl;
-	std::cout << accepted[i][0]->GetName() << std::endl;
 	accepted[i][0]->Fill(maxfpt);
 	if(hiBin < 60)
 	  accepted[i][1]->Fill(maxfpt);
@@ -238,14 +229,14 @@ void makeTurnOn(TString inHiForestFileName, TString outFileName, bool montecarlo
 
 int main(int argc, char **argv)
 {
-  if(argc == 3)
+  if(argc == 4)
   {
-    makeTurnOn(argv[1], argv[2]);
+    makeTurnOn(argv[1], argv[2], argv[3]);
     return 0;
   }
-  else if(argc == 4)
+  else if(argc == 5)
   {
-    makeTurnOn(argv[1], argv[2], atoi(argv[3]));
+    makeTurnOn(argv[1], argv[2], argv[3], atoi(argv[4]));
   }
   else
   {

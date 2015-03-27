@@ -6,7 +6,7 @@
 
 #include <iostream>
 
-void makeRateCurve(TString inFileName = "Hydjet502_JetResults.root")
+void makeRateCurve(TString inFileName = "Hydjet502_JetResults.root", bool secondaryFile = false)
 {
   std::cout << "Analyzing " << inFileName << std::endl;
   TH1::SetDefaultSumw2();
@@ -16,7 +16,11 @@ void makeRateCurve(TString inFileName = "Hydjet502_JetResults.root")
   const int maxPt = 256; // make sure that maxPt/nBins = 4.
 
   TFile *inFile = TFile::Open(inFileName);
-  TTree *inTree = (TTree*)inFile->Get("L1UpgradeTree");
+  TTree *inTree;
+  if(secondaryFile)
+    inTree = (TTree*)inFile->Get("L1UpgradeTree");
+  else
+    inTree = (TTree*)inFile->Get("L1UpgradeAnalyzer/L1UpgradeTree");
 
   Int_t l1_pt[MAXJETS];
   inTree->SetBranchAddress("jet_pt",l1_pt);
@@ -70,6 +74,10 @@ int main(int argc, char **argv)
   {
     makeRateCurve(argv[1]);
     return 0;
+  }
+  else if ( argc == 3 )
+  {
+    makeRateCurve(argv[1], atoi(argv[2]));
   }
   else
   {

@@ -49,7 +49,7 @@ void plotTurnOn(TString inFileName, TString outFileTag)
     }
   }
 
-  TLegend *leg = new TLegend(0.55,0.2,0.9,0.5);
+  TLegend *leg = new TLegend(0.55,0.2,0.9,0.5,"|#eta| < 2");
   leg->SetFillColor(0);
   leg->SetTextFont(42);
   leg->SetTextSizePixels(18);

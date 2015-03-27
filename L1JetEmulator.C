@@ -6,7 +6,7 @@
 
 #include "L1EmulatorSimulator.h"
 
-void L1JetEmulator(TString l1_input = "/export/d00/scratch/luck/HydjetMB_740pre8_MCHI2_74_V3_53XBS_L1UpgradeAnalyzer_GT_MCHI2_74_V3.root", TString outFileName = "Hydjet502_JetResults.root")
+void L1JetEmulator(TString l1_input = "/export/d00/scratch/luck/HydjetMB_740pre8_MCHI2_74_V3_53XBS_L1UpgradeAnalyzer_GT_MCHI2_74_V3.root", TString outFileName = "Hydjet502_JetResults.root", L1EmulatorSimulator::algoVariation algo = L1EmulatorSimulator::nominal)
 {
   std::cout << "Processing file: " << l1_input << std::endl;
   std::cout << "Saving to: " << outFileName << std::endl;
@@ -76,6 +76,18 @@ void L1JetEmulator(TString l1_input = "/export/d00/scratch/luck/HydjetMB_740pre8
 
     // perform phi-ring avg background subtraction
     L1EmulatorSimulator::CaloRingBackgroundSubtraction(regions, subRegions);
+    if (algo == L1EmulatorSimulator::doubleSubtraction)
+    {
+      L1EmulatorSimulator::cand interRegions[396];
+      L1EmulatorSimulator::CaloRingBackgroundSubtraction(regions, interRegions);
+      L1EmulatorSimulator::CaloRingBackgroundSubtraction(interRegions, subRegions);
+      algo = L1EmulatorSimulator::nominal; // run nominal jet finder
+    } else if (algo == L1EmulatorSimulator::sigmaSubtraction)
+    {
+      L1EmulatorSimulator::CaloRingSigmaBackgroundSubtraction(regions, subRegions);
+      algo = L1EmulatorSimulator::nominal; // run nominal jet finder
+    }
+
 
     // copy sub regions to output tree
     for(int i = 0; i < 396; ++i)
@@ -86,7 +98,7 @@ void L1JetEmulator(TString l1_input = "/export/d00/scratch/luck/HydjetMB_740pre8
     }
 
     // run the jet finder on the input regions
-    L1EmulatorSimulator::SlidingWindowJetFinder(subRegions, outJets);
+    L1EmulatorSimulator::SlidingWindowJetFinder(subRegions, outJets, algo);
     //RegionJetFinder(subRegions, outJets);
 
     // copy the jets to the output tree
