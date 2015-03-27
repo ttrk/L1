@@ -14,7 +14,7 @@
   # };
 
 InputType=(MBData Hydjet276 Hydjet502)
-InputHiForest=("/mnt/hadoop/cms/store/user/luck/L1Emulator/minbiasForest_merged_v2/HiForest_PbPb_Data_minbias_fromSkim_v3.root" "/mnt/hadoop/cms/store/user/ginnocen/Hydjet1p8_TuneDrum_Quenched_MinBias_2760GeV/HiMinBias_Forest_26June2014" "/mnt/hadoop/cms/store/user/luck/L1Emulator/HydjetMB_502TeV_740pre8_MCHI2_74_V3_HiForestAndEmulator_v3.root")
+InputHiForest=("/mnt/hadoop/cms/store/user/luck/L1Emulator/minbiasForest_merged_v2/HiForest_PbPb_Data_minbias_fromSkim_v3.root" "/mnt/hadoop/cms/store/user/ginnocen/Hydjet1p8_TuneDrum_Quenched_MinBias_2760GeV/HiMinBias_Forest_26June2014/d9ab4aca1923b3220eacf8ee0d550950/*.root" "/mnt/hadoop/cms/store/user/luck/L1Emulator/HydjetMB_502TeV_740pre8_MCHI2_74_V3_HiForestAndEmulator_v3.root")
 InputL1=("/mnt/hadoop/cms/store/user/men1/L1Data/HIL1DPG/MinBias/HIMinBiasUPC_Skim_HLT_HIMinBiasHfOrBSC_v2_CaloRegionEta516_CMSSW740pre7/L1NTupleMBHIFS.root" "/export/d00/scratch/luck/Hydjet1p8_2760GeV_L1UpgradeAnalyzer_GT_run1_mc_HIon_L1UpgradeAnalyzer.root" "/mnt/hadoop/cms/store/user/luck/L1Emulator/HydjetMB_502TeV_740pre8_MCHI2_74_V3_HiForestAndEmulator_v3.root")
 
 AlgoVariations=(nominal zeroWalls doubleSubtraction sigmaSubtraction barrelOnly oneByOne twoByTwo)
@@ -39,9 +39,9 @@ do
 	if [[ $sampleNum -eq 0 ]] || [[ $sampleNum -eq 1 ]]
 	then
 	   ./makeTurnOn.exe $L1Output ${InputHiForest[sampleNum]} $HistOutput
-	elif [[ $sampleNum == 2 ]]
+	elif [[ $sampleNum -eq 2 ]]
 	then
-	   ./makeTurnOn.exe $L1Output ${InputHiForest[sampleNum]} $HistOutput
+	   ./makeTurnOn_fromSameFile.exe $L1Output ${InputHiForest[sampleNum]} $HistOutput
 	fi
 	./plotTurnOn.exe $HistOutput $PlotOutputTag || exit 1
     done

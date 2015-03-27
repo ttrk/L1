@@ -40,9 +40,9 @@ void makeRateCurve(TString inFileName = "Hydjet502_JetResults.root", bool second
     counts->Fill(maxl1pt);
   }
 
-  TCanvas *c0 = new TCanvas();
-  counts->Draw("e");
-  c0->SetLogy();
+  //TCanvas *c0 = new TCanvas();
+  //counts->Draw("e");
+  //c0->SetLogy();
 
   TH1D *rate;
   rate = new TH1D("rate",";L1 p_{T};Rate",nBins,0,maxPt);
@@ -54,14 +54,13 @@ void makeRateCurve(TString inFileName = "Hydjet502_JetResults.root", bool second
     double j = (double)i*(double)maxPt/(double)nBins;
     double integral = counts->Integral(i+1, nBins);
     rate->Fill(j, (double)integral/total_integral);
-    std::cout << "L1_SingleJet" << j << "\t" << integral/total_integral*30000 << std::endl;
+    //std::cout << "L1_SingleJet" << j << "\t" << integral/total_integral*30000 << std::endl;
+    std::cout << integral/total_integral*30000 << std::endl;
   }
 
-  TCanvas *c1 = new TCanvas();
-  rate->Draw("hist");
-  c1->SetLogy();
-
-  //c1->SaveAs("hydjet_502_jets_rate.pdf");
+  //TCanvas *c1 = new TCanvas();
+  //rate->Draw("hist");
+  //c1->SetLogy();
 }
 
 int main(int argc, char **argv)
