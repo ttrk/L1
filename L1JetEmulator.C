@@ -123,19 +123,14 @@ void L1JetEmulator(TString l1_input = "/export/d00/scratch/luck/HydjetMB_740pre8
 
 int main(int argc, char **argv)
 {
-  if(argc == 1)
+  if (argc == 4)
   {
-    L1JetEmulator();
-    return 0;
-  }
-  else if (argc == 3)
-  {
-    L1JetEmulator(argv[1], argv[2]);
+    L1JetEmulator(argv[1], argv[2], (L1EmulatorSimulator::algoVariation)atoi(argv[3]));
     return 0;
   }
   else
   {
-    std::cout << "Usage: \nL1JetEmulator.exe <input_file_name> <output_file_name>" << std::endl;
+    std::cout << "Usage: \nL1JetEmulator.exe <input_file_name> <output_file_name> <algorithm_index>" << std::endl;
     return 1;
   }
 }
