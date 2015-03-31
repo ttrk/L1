@@ -32,8 +32,8 @@ namespace L1EmulatorSimulator {
   void CaloRingBackgroundSubtraction(cand region[396], cand subregion[396]);
   void CaloRingSigmaBackgroundSubtraction(cand region[396], cand subregion[396]);
   void SlidingWindowJetFinder(cand region[396], cand output[8], algoVariation algo);
-  void OneByOneFinder(cand region[396], cand output[8]);
-  void TwoByTwoFinder(cand region[396], cand output[8]);
+  void OneByOneFinder(cand region[396], cand output[8], algoVariation algo);
+  void TwoByTwoFinder(cand region[396], cand output[8], algoVariation algo);
 
   int deltaGctPhi(int phi1, int phi2)
   {
