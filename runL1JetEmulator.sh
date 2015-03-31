@@ -49,6 +49,6 @@ do
 	then
 	   ./makeTurnOn_fromSameFile.exe "$L1Output" "${InputHiForest[sampleNum]}" "$HistOutput" || exit 1
 	fi
-	#./plotTurnOn.exe "$HistOutput" "$PlotOutputTag" || exit 1
+	./plotTurnOn.exe "$HistOutput" "$PlotOutputTag" || exit 1
     done
 done
