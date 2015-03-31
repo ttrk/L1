@@ -19,8 +19,12 @@
 
 const int MAXL1JETS = 8;
 const int MAXJETS = 500;
-const Int_t THRESHOLDS = 11;
-const Double_t L1_THRESHOLD[THRESHOLDS] = {16,20,32,36,40,44,52,68,80,92,128};
+const Int_t THRESHOLDS = 30;
+const Double_t L1_THRESHOLD[THRESHOLDS] = {0, 4, 8, 12, 16, 20, 24,
+					   28, 32, 36, 40, 44, 48,
+					   52, 56, 60, 64, 68, 72,
+					   76, 80, 84, 88, 92, 96,
+					   100, 104, 108, 112, 116};
 
 void makeTurnOn(TString inL1FileName, TString inHiForestFileName, TString outFileName, bool montecarlo = false)
 {

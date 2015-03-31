@@ -75,17 +75,24 @@ void L1JetEmulator(TString l1_input = "/export/d00/scratch/luck/HydjetMB_740pre8
     }
 
     // perform phi-ring avg background subtraction
-    L1EmulatorSimulator::CaloRingBackgroundSubtraction(regions, subRegions);
-    if (algo == L1EmulatorSimulator::doubleSubtraction)
+    if(algo != L1EmulatorSimulator::doubleSubtraction
+       && algo != L1EmulatorSimulator::sigmaSubtraction
+       && algo != L1EmulatorSimulator::oneByOneANDzeroWallsANDsigmaSubtraction
+       && algo != L1EmulatorSimulator::twoByTwoANDzeroWallsANDsigmaSubtraction)
+    {
+      L1EmulatorSimulator::CaloRingBackgroundSubtraction(regions, subRegions);
+    }
+    else if (algo == L1EmulatorSimulator::doubleSubtraction)
     {
       L1EmulatorSimulator::cand interRegions[396];
       L1EmulatorSimulator::CaloRingBackgroundSubtraction(regions, interRegions);
       L1EmulatorSimulator::CaloRingBackgroundSubtraction(interRegions, subRegions);
-      algo = L1EmulatorSimulator::nominal; // run nominal jet finder
-    } else if (algo == L1EmulatorSimulator::sigmaSubtraction)
+    }
+    else if (algo == L1EmulatorSimulator::sigmaSubtraction
+	     || algo == L1EmulatorSimulator::oneByOneANDzeroWallsANDsigmaSubtraction
+	     || algo == L1EmulatorSimulator::twoByTwoANDzeroWallsANDsigmaSubtraction)
     {
       L1EmulatorSimulator::CaloRingSigmaBackgroundSubtraction(regions, subRegions);
-      algo = L1EmulatorSimulator::nominal; // run nominal jet finder
     }
 
 

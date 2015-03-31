@@ -21,14 +21,18 @@ namespace L1EmulatorSimulator {
     sigmaSubtraction,
     barrelOnly,
     oneByOne,
-    twoByTwo
+    twoByTwo,
+    oneByOneANDzeroWalls,
+    oneByOneANDzeroWallsANDsigmaSubtraction,
+    twoByTwoANDzeroWalls,
+    twoByTwoANDzeroWallsANDsigmaSubtraction
   };
 
   int deltaGctPhi(int phi1, int phi2);
   void CaloRingBackgroundSubtraction(cand region[396], cand subregion[396]);
   void CaloRingSigmaBackgroundSubtraction(cand region[396], cand subregion[396]);
   void SlidingWindowJetFinder(cand region[396], cand output[8], algoVariation algo);
-  void RegionJetFinder(cand region[396], cand output[8]);
+  void OneByOneFinder(cand region[396], cand output[8]);
   void TwoByTwoFinder(cand region[396], cand output[8]);
 
   int deltaGctPhi(int phi1, int phi2)
@@ -101,7 +105,7 @@ namespace L1EmulatorSimulator {
 	std::cout << "ERROR: wrong number of regions in phi ring." << std::endl;
       puLevelHI[i] = floor(r_puLevelHI[i]/18. + 0.5); // this floating point operation should probably be replaced
       // also subtract an extra sigma
-      puLevelHI[i] += floor(TMath::Sqrt( r_puLevelHI[i]/18. - (r_puLevelHI[i]/18.)*(r_puLevelHI[i]/18.)) + 0.5);
+      puLevelHI[i] += floor(TMath::Sqrt( r_puLevelHI2[i]/18. - (r_puLevelHI[i]/18.)*(r_puLevelHI[i]/18.)) + 0.5);
     }
 
     for(int i = 0; i < 396; ++i){
@@ -113,17 +117,17 @@ namespace L1EmulatorSimulator {
 
   void SlidingWindowJetFinder(cand region[396], cand output[8], algoVariation algo = nominal)
   {
-    if(algo == oneByOne)
+    if((algo == oneByOne) || (algo == oneByOneANDzeroWalls) || (algo == oneByOneANDzeroWallsANDsigmaSubtraction))
     {
-      RegionJetFinder(region, output);
+      OneByOneFinder(region, output, algo);
       return;
     }
-    else if(algo == twoByTwo)
+    else if((algo == twoByTwo) || (algo == twoByTwoANDzeroWalls) || (algo == twoByTwoANDzeroWallsANDsigmaSubtraction))
     {
-      TwoByTwoFinder(region, output);
+      TwoByTwoFinder(region, output, algo);
       return;
     }
-    else if(algo == nominal || algo == zeroWalls || algo == barrelOnly)
+    else
     {
       std::vector<cand> forjets;
       std::vector<cand> cenjets;
@@ -272,14 +276,19 @@ namespace L1EmulatorSimulator {
     }
   }
 
-  void RegionJetFinder(cand region[396], cand output[8])
+  void OneByOneFinder(cand region[396], cand output[8], algoVariation algo)
   {
     std::vector<cand> forjets;
     std::vector<cand> cenjets;
 
     for(int i = 0; i < 396; i++) {
       region[i].pt = region[i].pt /8;
-      if(region[i].eta < 4 || region[i].eta > 18) {
+      if((algo == oneByOneANDzeroWalls) || (algo == oneByOneANDzeroWallsANDsigmaSubtraction))
+      {
+	if(region[i].eta == 4 || region[i].eta == 17)
+	  region[i].pt = 0;
+      }
+      if(region[i].eta < 4 || region[i].eta > 17) {
 	forjets.push_back(region[i]);
       } else {
 	cenjets.push_back(region[i]);
@@ -308,13 +317,18 @@ namespace L1EmulatorSimulator {
 
   }
 
-  void TwoByTwoFinder(cand region[396], cand output[8])
+  void TwoByTwoFinder(cand region[396], cand output[8], algoVariation algo)
   {
     std::vector<cand> forjets;
     std::vector<cand> cenjets;
 
     for(int i = 0; i < 396; i++) {
       int regionET = region[i].pt;
+      if((algo == twoByTwoANDzeroWalls) || (algo == twoByTwoANDzeroWallsANDsigmaSubtraction))
+      {
+	if(region[i].eta == 4 || region[i].eta == 17)
+	  regionET = 0;
+      }
       int regionEta = region[i].eta;
       int regionPhi = region[i].phi;
       int neighborS_et = 0;
@@ -323,6 +337,11 @@ namespace L1EmulatorSimulator {
       unsigned int nNeighbors = 0;
       for(int j = 0; j < 396; j++) {
 	int neighborET = region[j].pt;
+	if((algo == twoByTwoANDzeroWalls) || (algo == twoByTwoANDzeroWallsANDsigmaSubtraction))
+	{
+	  if(region[j].eta == 4 || region[j].eta == 17)
+	    neighborET = 0;
+	}
 	int neighborEta = region[j].eta;
 	int neighborPhi = region[j].phi;
 	if(deltaGctPhi(regionPhi, neighborPhi) == -1 &&
