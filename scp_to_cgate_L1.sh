@@ -10,7 +10,7 @@ sourceFiles="
 *.txt
 ";         # do not copy all sort of files
 remoteMachine="tatar@cgate.mit.edu";
-destinationInRemote="~/CMSSW_7_4_0_pre8/src/L1EmulatorMacros_v2";
+destinationInRemote="~/CMSSW_7_4_0_pre6/src/L1EmulatorMacros";
 destination=$remoteMachine":"$destinationInRemote;
 
 scp $sourceFiles $destination
