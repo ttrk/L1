@@ -29,6 +29,11 @@ const Int_t THRESHOLDS = 60;
 // 					   76, 80, 84, 88, 92, 96,
 // 					   100, 104, 108, 112, 116};
 
+//////// Kaya's modificiation ////////
+	// zero out regions with 0 <= region.eta <= 5 or 16 <= region.eta <= 21
+const bool zeroOut = true ;
+//////// Kaya's modificiation - END ////////
+
 
 void makeTurnOn(/*TString inL1Name,*/ TString inHiForestFileName, TString outFileName)
 {
@@ -177,16 +182,64 @@ void makeTurnOn(/*TString inL1Name,*/ TString inHiForestFileName, TString outFil
     // 	maxl1pt = emcand_hwPt[i];
     // }
     L1EmulatorSimulator::cand regions[396];
-    L1EmulatorSimulator::cand subregions[396];
+    L1EmulatorSimulator::cand subregions_tmp[396];
     for(int i = 0; i < MAXL1REGIONS; ++i)
     {
       regions[i].pt = region_hwPt[i];
       regions[i].eta = region_hwEta[i];
       regions[i].phi = region_hwPhi[i];
     }
-    L1EmulatorSimulator::CaloRingBackgroundSubtraction(regions, subregions);
+    //    L1EmulatorSimulator::CaloRingBackgroundSubtraction(regions, subregions);
+    L1EmulatorSimulator::CaloRingBackgroundSubtraction(regions, subregions_tmp);
 
-    for(int i = 0; i < MAXL1REGIONS; ++i)
+    //////// Kaya's modificiation ////////
+    /*
+     *  run 2x2 and 3x3 jet finder algorithms with forward regions (eta<=5 or eta >=16) zeroed out.
+     *  zero out regions with 0 <= region.eta <= 5 or 16 <= region.eta <= 21
+    */
+    int newMAXL1REGIONS = MAXL1REGIONS;
+    if(zeroOut)
+    {
+    	newMAXL1REGIONS = 8;
+
+		// zero out forward regions
+    	for(int i = 0; i < MAXL1REGIONS; i++) {
+    		if(subregions_tmp[i].eta <= 5 || subregions_tmp[i].eta >= 16)
+    		{
+    			subregions_tmp[i].pt = 0;
+    		}
+    	}
+    }
+    L1EmulatorSimulator::cand subregions[newMAXL1REGIONS];
+    if(zeroOut)
+    {
+    	if(outFileName.Contains("2x2"))
+    	{
+    		L1EmulatorSimulator::SlidingWindowJetFinder(subregions_tmp,subregions, L1EmulatorSimulator::twoByTwoANDzeroWalls);
+    	}
+    	else if(outFileName.Contains("3x3"))
+    	{
+    		L1EmulatorSimulator::SlidingWindowJetFinder(subregions_tmp,subregions, L1EmulatorSimulator::nominal);
+    	}
+    	else
+    	{
+    		std::cout << "Use either 2x2 or 3x3" << std::endl;
+    		exit(1);
+    	}
+    }
+    else
+    {
+    	for(int i = 0; i < newMAXL1REGIONS; i++)
+    	{
+        	subregions[i].pt = subregions_tmp[i].pt;
+        	subregions[i].eta = subregions_tmp[i].eta;
+        	subregions[i].phi = subregions_tmp[i].phi;
+    	}
+    }
+    //////// Kaya's modificiation - END ////////
+
+    //    for(int i = 0; i < MAXL1REGIONS; ++i)
+    for(int i = 0; i < newMAXL1REGIONS; ++i)
     {
       if(subregions[i].eta < 6 || subregions[i].eta > 15) continue;
       if(subregions[i].pt > maxl1pt)
