@@ -22,7 +22,7 @@ const int MAXL1EMCANDS = 144;
 const int MAXL1REGIONS = 396;
 const int MAXL1JETS = 8;
 const int MAXPHOTONS = 500;
-const Int_t THRESHOLDS = 80;
+const Int_t THRESHOLDS = 81;
 
 void makeTurnOn(TString inL1FileName, TString inHiForestFileName, TString outFileName)
 {
@@ -110,7 +110,7 @@ void makeTurnOn(TString inL1FileName, TString inHiForestFileName, TString outFil
   TFile *outFile = new TFile(outFileName,"RECREATE");
 
   const int nBins = 200;
-  const double maxPt = 200;
+  const double maxPt = 100;
 
   TH1D *l1Pt = new TH1D("l1Pt",";L1 p_{T} (GeV)",nBins,0,maxPt);
   TH1D *fPt[3];
@@ -152,18 +152,8 @@ void makeTurnOn(TString inL1FileName, TString inHiForestFileName, TString outFil
     if(j % 10000 == 0)
       printf("%lld / %lld\n",j,entries);
 
-    // Only use good collision events ********
     fEvtTree->GetEntry(j);
     fSkimTree->GetEntry(j);
-    bool goodEvent = false;
-    // 5.02 TeV Hydjet missing pcollisionEventSelection for now
-    //if((pcollisionEventSelection == 1) && (montecarlo || (pHBHENoiseFilter == 1)) && (TMath::Abs(vz) < 15))
-    if((TMath::Abs(vz) < 15))
-    {
-      goodEvent = true;
-    }
-    if(!goodEvent) continue;
-    //**************
 
     // retrieve the matching entry from the l1 input ***********
     long long l1Entry = matcher->retrieveEvent(f_evt, f_lumi, f_run);
@@ -176,27 +166,39 @@ void makeTurnOn(TString inL1FileName, TString inHiForestFileName, TString outFil
     count++;
 
     double maxl1pt = 0;
-    // for(int i = 0; i < MAXL1EMCANDS; ++i)
-    // {
-    //   if(emcand_hwPt[i] > maxl1pt)
-    // 	maxl1pt = emcand_hwPt[i];
-    // }
-    L1EmulatorSimulator::cand regions[396];
-    L1EmulatorSimulator::cand subregions[396];
-    for(int i = 0; i < MAXL1REGIONS; ++i)
+    //egamma candidates
+    for(int i = 0; i < MAXL1EMCANDS; ++i)
     {
-      regions[i].pt = region_hwPt[i];
-      regions[i].eta = region_hwEta[i];
-      regions[i].phi = region_hwPhi[i];
+      if(emcand_hwPt[i] > maxl1pt)
+    	maxl1pt = emcand_hwPt[i];
     }
-    L1EmulatorSimulator::CaloRingBackgroundSubtraction(regions, subregions);
 
-    for(int i = 0; i < MAXL1REGIONS; ++i)
-    {
-      if(subregions[i].eta < 6 || subregions[i].eta > 15) continue;
-      if(subregions[i].pt > maxl1pt)
-	maxl1pt = subregions[i].pt;
-    }
+    // // background-subtracted regions
+    // L1EmulatorSimulator::cand regions[396];
+    // L1EmulatorSimulator::cand subregions[396];
+    // for(int i = 0; i < MAXL1REGIONS; ++i)
+    // {
+    //   regions[i].pt = region_hwPt[i];
+    //   regions[i].eta = region_hwEta[i];
+    //   regions[i].phi = region_hwPhi[i];
+    // }
+    // L1EmulatorSimulator::CaloRingBackgroundSubtraction(regions, subregions);
+
+    // for(int i = 0; i < MAXL1REGIONS; ++i)
+    // {
+    //   if(subregions[i].eta < 6 || subregions[i].eta > 15) continue;
+    //   if(subregions[i].pt*0.5 > maxl1pt)
+    // 	maxl1pt = subregions[i].pt*0.5;
+    // }
+
+    // // no-background subtracted regions
+    // for(int i = 0; i < MAXL1REGIONS; ++i)
+    // {
+    //   if(region_hwEta[i] < 6 || region_hwEta[i] > 15) continue;
+    //   if(region_hwPt[i]*0.5 > maxl1pt)
+    // 	maxl1pt = region_hwPt[i]*0.5;
+    // }
+
 
     double maxfpt = 0;
     for(int i = 0; i < nPhoton; ++i)
@@ -214,6 +216,16 @@ void makeTurnOn(TString inL1FileName, TString inHiForestFileName, TString outFil
       }
     }
     l1Pt->Fill(maxl1pt);
+
+    bool goodEvent = false;
+    // 5.02 TeV Hydjet missing pcollisionEventSelection for now
+    if((pcollisionEventSelection == 1) && ((pHBHENoiseFilter == 1)) && (TMath::Abs(vz) < 15))
+    //if((pHBHENoiseFilter == 1) && (TMath::Abs(vz) < 15))
+    //if(TMath::Abs(vz) < 15)
+    {
+      goodEvent = true;
+    }
+    if(!goodEvent) continue;
 
     fPt[0]->Fill(maxfpt);
     if(hiBin < 60)

@@ -22,7 +22,7 @@ const int MAXL1EMCANDS = 144;
 const int MAXL1REGIONS = 396;
 const int MAXL1JETS = 8;
 const int MAXPHOTONS = 500;
-const Int_t THRESHOLDS = 60;
+const Int_t THRESHOLDS = 81;
 // const Double_t L1_THRESHOLD[THRESHOLDS] = {0, 4, 8, 12, 16, 20, 24,
 // 					   28, 32, 36, 40, 44, 48,
 // 					   52, 56, 60, 64, 68, 72,
@@ -129,7 +129,7 @@ void makeTurnOn(/*TString inL1Name,*/ TString inHiForestFileName, TString outFil
   f1Tree->SetBranchAddress("seedTime",seedTime);
 
   const int nBins = 200;
-  const double maxPt = 200;
+  const double maxPt = 100;
 
   TH1D *l1Pt = new TH1D("l1Pt",";L1 p_{T} (GeV)",nBins,0,maxPt);
   TH1D *fPt[3];
@@ -157,14 +157,6 @@ void makeTurnOn(/*TString inL1Name,*/ TString inHiForestFileName, TString outFil
     // Only use good collision events ********
     fEvtTree->GetEntry(j);
     fSkimTree->GetEntry(j);
-    bool goodEvent = false;
-    // 5.02 TeV Hydjet missing pcollisionEventSelection for now
-    //if((pcollisionEventSelection == 1) && (montecarlo || (pHBHENoiseFilter == 1)) && (TMath::Abs(vz) < 15))
-    if((TMath::Abs(vz) < 15))
-    {
-      goodEvent = true;
-    }
-    if(!goodEvent) continue;
 
     //std::cout << accepted[0][0]->GetName() << std::endl;
     l1Tree->GetEntry(j);
@@ -189,26 +181,35 @@ void makeTurnOn(/*TString inL1Name,*/ TString inHiForestFileName, TString outFil
     for(int i = 0; i < MAXL1REGIONS; ++i)
     {
       if(subregions[i].eta < 6 || subregions[i].eta > 15) continue;
-      if(subregions[i].pt > maxl1pt)
-	maxl1pt = subregions[i].pt;
+      if(subregions[i].pt*0.5 > maxl1pt)
+    	maxl1pt = subregions[i].pt *0.5;
     }
 
     double maxfpt = 0;
     for(int i = 0; i < nPhoton; ++i)
     {
-      if((cc4[i] + cr4[i] + ct4PtCut20[i]) < 0.9)
+      // if((cc4[i] + cr4[i] + ct4PtCut20[i]) < 0.9)
       if(TMath::Abs(photon_eta[i]) < 1.4791)
-      if(!isEle[i])
+      // if(!isEle[i])
       if(TMath::Abs(seedTime[i])<3)
       if(swissCrx[i] < 0.9)
       if(sigmaIetaIeta[i] > 0.002)
       if(sigmaIphiIphi[i] > 0.002)
-      if(hadronicOverEm[i] < 0.1)
+      // if(hadronicOverEm[i] < 0.1)
       if(photon_pt[i] > maxfpt) {
 	maxfpt = photon_pt[i];
       }
     }
     l1Pt->Fill(maxl1pt);
+
+    bool goodEvent = false;
+    // 5.02 TeV Hydjet missing pcollisionEventSelection for now
+    //if((pcollisionEventSelection == 1) && (montecarlo || (pHBHENoiseFilter == 1)) && (TMath::Abs(vz) < 15))
+    if((TMath::Abs(vz) < 15))
+    {
+      goodEvent = true;
+    }
+    if(!goodEvent) continue;
 
     fPt[0]->Fill(maxfpt);
     if(hiBin < 60)
