@@ -10,9 +10,11 @@ sourceFiles="
 ${sourceDir}/*.pdf
 "; # do not copy all sort of files
 
-source=$remoteMachine":"$sourceFiles;
+#source=$remoteMachine":"$sourceFiles;
+sourceDir2=$remoteMachine":"$sourceDir;
 
 destination="/home/kaya/Documents/cgate/output/"$sourceFolder;
 
 mkdir -p $destination
-scp "${source}" $destination
+# scp "${source}" $destination
+scp $sourceDir2"/*.pdf" $destination

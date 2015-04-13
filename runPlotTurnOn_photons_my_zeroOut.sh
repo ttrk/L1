@@ -1,4 +1,14 @@
 #!/bin/bash
+############################################################
+## print the command
+echo "command called =" $0 $1 $2
+## start time of the script
+date1=$(date +"%s")         # %s     seconds since 1970-01-01 00:00:00 UTC
+#date1Human=$(date -d @$date1)
+date1Human=$(date -d @$date1 '+%d/%m/%Y %H:%M:%S')
+echo "started on     =" $date1Human
+echo "############################################################"
+############################################################
 
 # The input files are listed here : https://twiki.cern.ch/twiki/bin/view/CMSPublic/SWGuideL1TValidationSamples
 
@@ -58,42 +68,21 @@ do
     ./plotTurnOn_photons.exe "${outFilePathHist3x3[sampleNum]}" "${outFilePathTag3x3[sampleNum]}" || exit 1
 done
 
+############################################################
+echo "############################################################"
+echo "##### log of the SCRIPT =" $0
 
+## finish time and run time of the script
+date2=$(date +"%s")         # %s     seconds since 1970-01-01 00:00:00 UTC
+#date2Human=$(date -d @$date2)
+date2Human=$(date -d @$date2 '+%d/%m/%Y %H:%M:%S')
+diff=$(($date2-$date1))
+diffHuman=$(date -d @$diff)
+#echo $date1
+echo "started  on    =" $date1Human
+echo "finished on    =" $date2Human
+echo "$(($diff / 60)) minutes and $(($diff % 60)) seconds elapsed."
+echo $diffHuman
 
-
-
-
-
-
-
-
-
-
-
-
-# # set -x
-
-# # This is a master file to run the emulator macro and then print out rates on multiple datasets at once
-# # You can find the up-to-date list of samples here: https://twiki.cern.ch/twiki/bin/view/CMSPublic/SWGuideL1TValidationSamples
-
-
-# for sampleNum in 0 1 2
-# do
-#     for algo in 7 8 9 10 #0 1 2 3 4 5 6 7 8 9 10 # only run new combinations now
-#     do
-# 	L1Output="~/scratch/EmulatorResults/${InputType[sampleNum]}_JetResults_${AlgoVariations[algo]}.root"
-# 	HistOutput="hist_${InputType[sampleNum]}_${AlgoVariations[algo]}.root"
-# 	PlotOutputTag="${InputType[sampleNum]}_${AlgoVariations[algo]}"
-# 	./L1JetEmulator.exe "${InputL1[sampleNum]}" "$L1Output" $algo || exit 1
-# 	./makeRateCurve.exe "$L1Output" 1 || exit 1
-# 	if [[ $sampleNum -eq 0 ]] || [[ $sampleNum -eq 1 ]]
-# 	then
-# 	   ./makeTurnOn.exe "$L1Output" "${InputHiForest[sampleNum]}" "$HistOutput" || exit 1
-# 	elif [[ $sampleNum -eq 2 ]]
-# 	then
-# 	   ./makeTurnOn_fromSameFile.exe "$L1Output" "${InputHiForest[sampleNum]}" "$HistOutput" || exit 1
-# 	fi
-# 	./plotTurnOn.exe "$HistOutput" "$PlotOutputTag" || exit 1
-#     done
-# done
-
+echo "##### END #####"
+############################################################
