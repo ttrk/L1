@@ -53,6 +53,15 @@ $outDirectory"/"${outFileNameHist[0]}
 $outDirectory"/"${outFileNameHist[1]}
 );
 
+outFileNameHistBkgSubtract=(
+"hist_Photon2030_NOzeroOut_BkgSubtract.root"
+"hist_HydjetMB_502TeV_NOzeroOut_BkgSubtract.root"
+);
+outFilePathHistBkgSubtract=(
+$outDirectory"/"${outFileNameHistBkgSubtract[0]}
+$outDirectory"/"${outFileNameHistBkgSubtract[1]}
+);
+
 outFileNameHist2x2=(
 "hist_Photon2030_zeroOut_2x2.root"
 "hist_HydjetMB_502TeV_zeroOut_2x2.root"
@@ -75,6 +84,17 @@ $outDirectory"/"${outFileNameHist3x3[1]}
 g++ makeTurnOn_photons.C              $(root-config --cflags --libs) -Werror -Wall -Wextra -O2 -o makeTurnOn_photons.exe              || exit 1
 g++ makeTurnOn_fromSameFile_photons.C $(root-config --cflags --libs) -Werror -Wall -Wextra -O2 -o makeTurnOn_fromSameFile_photons.exe || exit 1
 ##g++ plotTurnOn.C $(root-config --cflags --libs) -Werror -Wall -Wextra -O2 -o plotTurnOn.exe || exit 1
+
+for sampleNum in 0 1
+do
+	if [ $sampleNum -eq 0 ]
+	then
+	    ./makeTurnOn_photons.exe "${InputL1[sampleNum]}" "${InputHiForest[sampleNum]}" "${outFilePathHistBkgSubtract[sampleNum]}" || exit 1
+	elif [ $sampleNum -eq 1 ]
+	then
+	    ./makeTurnOn_fromSameFile_photons.exe            "${InputHiForest[sampleNum]}" "${outFilePathHistBkgSubtract[sampleNum]}" || exit 1
+        fi
+done
 
 for sampleNum in 0 1
 do

@@ -24,14 +24,12 @@ const int MAXL1JETS = 8;
 const int MAXPHOTONS = 500;
 const Int_t THRESHOLDS = 80;
 
-//////// Kaya's modificiation ////////
-// zero out regions with 0 <= region.eta <= 5 or 16 <= region.eta <= 21
-const bool zeroOut = true ;
-//////// Kaya's modificiation - END ////////
-
 void makeTurnOn(TString inL1FileName, TString inHiForestFileName, TString outFileName)
 {
 	//////// Kaya's modificiation ////////
+	// zero out regions with 0 <= region.eta <= 5 or 16 <= region.eta <= 21
+	// decide zeroOut from file name
+	bool zeroOut = ( outFileName.Contains("2x2") ||  outFileName.Contains("3x3") );
 	std::cout << "zeroOut = " << zeroOut << std::endl;
 	//////// Kaya's modificiation - END ////////
 
@@ -251,8 +249,21 @@ void makeTurnOn(TString inL1FileName, TString inHiForestFileName, TString outFil
     for(int i = 0; i < newMAXL1REGIONS; ++i)
     {
       if(subregions[i].eta < 6 || subregions[i].eta > 15) continue;
-      if(subregions[i].pt > maxl1pt)
-	maxl1pt = subregions[i].pt;
+      //////// Kaya's modificiation ////////
+      //      if(subregions[i].pt > maxl1pt)
+      //	maxl1pt = subregions[i].pt;
+      // take hardware scale change into account
+      if(zeroOut)
+      {
+    	  if(subregions[i].pt * 4 > maxl1pt)
+    		  maxl1pt = subregions[i].pt * 4 ;
+      }
+      else
+      {
+    	  if(subregions[i].pt * 0.5 > maxl1pt)
+    		  maxl1pt = subregions[i].pt * 0.5;
+      }
+      //////// Kaya's modificiation - END ////////
     }
 
     double maxfpt = 0;

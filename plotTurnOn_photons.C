@@ -72,6 +72,7 @@ void plotTurnOn(TString inFileName, TString outFileTag)
   TH2D* corr = (TH2D*)inFile->Get("corr");
   TCanvas* c2 = new TCanvas();
   corr->Draw("COLZ");
+  gPad->SetLogz();
   c2->SaveAs(Form("%s_corr.pdf",outFileTag.Data()));
   //////// Kaya's modificiation - END ////////
 }
