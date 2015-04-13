@@ -66,6 +66,13 @@ void plotTurnOn(TString inFileName, TString outFileTag)
 
   c1->SaveAs(Form("%s_turnon.pdf",outFileTag.Data()));
 
+  //////// Kaya's modificiation ////////
+  //  plot L1-Offline correlation
+  TH2D* corr = (TH2D*)inFile->Get("corr");
+  TCanvas* c2 = new TCanvas();
+  corr->Draw("COLZ");
+  c2->SaveAs(Form("%s_corr.pdf",outFileTag.Data()));
+  //////// Kaya's modificiation - END ////////
 }
 
 int main(int argc, char **argv)
