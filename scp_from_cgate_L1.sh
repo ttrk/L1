@@ -16,5 +16,5 @@ sourceDir2=$remoteMachine":"$sourceDir;
 destination="/home/kaya/Documents/cgate/output/"$sourceFolder;
 
 mkdir -p $destination
-# scp "${source}" $destination
+# scp "${source}" $destination           # NOT working
 scp $sourceDir2"/*.pdf" $destination

@@ -36,7 +36,8 @@ echo "############################################################"
 # sample = 5.02TeV MB Hydjet
 InputHiForest=(
 "/mnt/hadoop/cms/store/user/luck/L1Emulator/HiForest_PbPb_photon2030.root"
-"/mnt/hadoop/cms/store/user/luck/L1Emulator/HydjetMB_502TeV_740pre8_MCHI2_74_V3_HiForestAndEmulator_v3.root"
+#"/mnt/hadoop/cms/store/user/luck/L1Emulator/HydjetMB_502TeV_740pre8_MCHI2_74_V3_HiForestAndEmulator_v3.root"
+"/mnt/hadoop/cms/store/user/luck/L1Emulator/HydjetMB_502TeV_740pre8_MCHI2_74_V3_HiForestAndEmulator_v5.root"
 );
 InputL1=(
 "/export/d00/scratch/ginnocen/PhotonSamples/HIHighPt-HIRun2011-RAW-photon20and30_v2_GR_P_V27A_L1UpgradeAnalyzer.root"
@@ -55,7 +56,7 @@ $outDirectory"/"${outFileNameHist[1]}
 
 outFileNameHistBkgSubtract=(
 "hist_Photon2030_NOzeroOut_BkgSubtract.root"
-"hist_HydjetMB_502TeV_NOzeroOut_BkgSubtract.root"
+"hist_HydjetMB_502TeV_NOzeroOut_BkgSubtract_v5.root"
 );
 outFilePathHistBkgSubtract=(
 $outDirectory"/"${outFileNameHistBkgSubtract[0]}
@@ -64,7 +65,7 @@ $outDirectory"/"${outFileNameHistBkgSubtract[1]}
 
 outFileNameHist2x2=(
 "hist_Photon2030_zeroOut_2x2.root"
-"hist_HydjetMB_502TeV_zeroOut_2x2.root"
+"hist_HydjetMB_502TeV_zeroOut_2x2_v5.root"
 );
 outFilePathHist2x2=(
 $outDirectory"/"${outFileNameHist2x2[0]}
@@ -73,7 +74,7 @@ $outDirectory"/"${outFileNameHist2x2[1]}
 
 outFileNameHist3x3=(
 "hist_Photon2030_zeroOut_3x3.root"
-"hist_HydjetMB_502TeV_zeroOut_3x3.root"
+"hist_HydjetMB_502TeV_zeroOut_3x3_v5.root"
 );
 outFilePathHist3x3=(
 $outDirectory"/"${outFileNameHist3x3[0]}
@@ -89,7 +90,8 @@ for sampleNum in 0 1
 do
 	if [ $sampleNum -eq 0 ]
 	then
-	    ./makeTurnOn_photons.exe "${InputL1[sampleNum]}" "${InputHiForest[sampleNum]}" "${outFilePathHistBkgSubtract[sampleNum]}" || exit 1
+#	    ./makeTurnOn_photons.exe "${InputL1[sampleNum]}" "${InputHiForest[sampleNum]}" "${outFilePathHistBkgSubtract[sampleNum]}" || exit 1
+	    echo "Skipping HiForest_PbPb_photon2030.root"
 	elif [ $sampleNum -eq 1 ]
 	then
 	    ./makeTurnOn_fromSameFile_photons.exe            "${InputHiForest[sampleNum]}" "${outFilePathHistBkgSubtract[sampleNum]}" || exit 1
@@ -100,7 +102,8 @@ for sampleNum in 0 1
 do
 	if [ $sampleNum -eq 0 ]
 	then
-	    ./makeTurnOn_photons.exe "${InputL1[sampleNum]}" "${InputHiForest[sampleNum]}" "${outFilePathHist2x2[sampleNum]}" || exit 1
+#	    ./makeTurnOn_photons.exe "${InputL1[sampleNum]}" "${InputHiForest[sampleNum]}" "${outFilePathHist2x2[sampleNum]}" || exit 1
+	    echo "Skipping HiForest_PbPb_photon2030.root"
 	elif [ $sampleNum -eq 1 ]
 	then
 	    ./makeTurnOn_fromSameFile_photons.exe            "${InputHiForest[sampleNum]}" "${outFilePathHist2x2[sampleNum]}" || exit 1
@@ -111,7 +114,8 @@ for sampleNum in 0 1
 do
 	if [ $sampleNum -eq 0 ]
 	then
-	    ./makeTurnOn_photons.exe "${InputL1[sampleNum]}" "${InputHiForest[sampleNum]}" "${outFilePathHist3x3[sampleNum]}" || exit 1
+#	    ./makeTurnOn_photons.exe "${InputL1[sampleNum]}" "${InputHiForest[sampleNum]}" "${outFilePathHist3x3[sampleNum]}" || exit 1
+	    echo "Skipping HiForest_PbPb_photon2030.root"
 	elif [ $sampleNum -eq 1 ]
 	then
 	    ./makeTurnOn_fromSameFile_photons.exe            "${InputHiForest[sampleNum]}" "${outFilePathHist3x3[sampleNum]}" || exit 1

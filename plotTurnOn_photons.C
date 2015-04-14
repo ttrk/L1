@@ -1,3 +1,8 @@
+/*
+ * detect L1_THRESHOLD pt for which turn-on curve becomes 100% at pT = 60 GeV
+ *
+ * Alex : For the single region, 2x2, and 3x3 seeds, we should show the turn-on curve that reaches 100% efficiency at photon pt = 60 GeV all on the same plot and state the rates. I can make the combo plot and I have the single region turn-ons, so from you guys I need you to tell me where I can find the histogram file that contains the 2x2 and 3x3 turn-on curves, and which turn-on curve is the first to be 100% efficient at photon pt = 60GeV (using the photon-triggered data sample). I would then need you to tell me the rate of that threshold on the 5.02 TeV sample.
+ * */
 #include <TFile.h>
 #include <TH1D.h>
 #include <TH2D.h>
@@ -7,7 +12,12 @@
 #include <TLine.h>
 #include <iostream>
 
-void plotTurnOn(TString inFileName, TString outFileTag)
+void plotTurnOn(TString inFileName, TString outFileTag, double pt_photon = 60);
+
+/*
+ * detect L1_THRESHOLD pt for which
+ * */
+void plotTurnOn(TString inFileName, TString outFileTag, double pt_photon /* = 60 */)
 {
   TFile *inFile = TFile::Open(inFileName);
 
