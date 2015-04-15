@@ -42,66 +42,26 @@ InputHiForest=(
 
 outDirectory="/export/d00/scratch/tatar/output/out_L1EmulatorMacros_v3";
 
-# outFileNameHist=(
-# "hist_Photon2030_zeroOut_NxN.root"
-# "hist_HydjetMB_502TeV_zeroOut_NxN.root"
-# );
-# outFilePathHist=(
-# $outDirectory"/"${outFileNameHist[0]}
-# $outDirectory"/"${outFileNameHist[1]}
-# );
+declare -a algoTypes=("NOzeroOut_BkgSubtract" "zeroOut_2x2" "zeroOut_3x3");
+#declare -a algoTypes=("zeroOut_1x1");
 
-outFileNameHistBkgSubtract=(
-"hist_HydjetMB_502TeV_v5_NOzeroOut_BkgSubtract.root"
-"hist_AllQCDPhoton30_PhotonFilter20GeV_NOzeroOut_BkgSubtract.root"
-"hist_PyquenUnquenched_DiJet_pt30_PbPb_5020GeV_NOzeroOut_BkgSubtract.root"
-);
-outFilePathHistBkgSubtract=(
-$outDirectory"/"${outFileNameHistBkgSubtract[0]}
-$outDirectory"/"${outFileNameHistBkgSubtract[1]}
-$outDirectory"/"${outFileNameHistBkgSubtract[2]}
-);
-
-outFileNameHist2x2=(
-"hist_HydjetMB_502TeV_v5_zeroOut_2x2.root"
-"hist_AllQCDPhoton30_PhotonFilter20GeV_zeroOut_2x2.root"
-"hist_PyquenUnquenched_DiJet_pt30_PbPb_5020GeV_zeroOut_2x2.root"
-);
-outFilePathHist2x2=(
-$outDirectory"/"${outFileNameHist2x2[0]}
-$outDirectory"/"${outFileNameHist2x2[1]}
-$outDirectory"/"${outFileNameHist2x2[2]}
-);
-
-outFileNameHist3x3=(
-"hist_HydjetMB_502TeV_v5_zeroOut_3x3.root"
-"hist_AllQCDPhoton30_PhotonFilter20GeV_zeroOut_3x3.root"
-"hist_PyquenUnquenched_DiJet_pt30_PbPb_5020GeV_zeroOut_3x3.root"
-);
-outFilePathHist3x3=(
-$outDirectory"/"${outFileNameHist3x3[0]}
-$outDirectory"/"${outFileNameHist3x3[1]}
-$outDirectory"/"${outFileNameHist3x3[2]}
+outFileNamePrefix=(
+"hist_HydjetMB_502TeV_v5"
+"hist_AllQCDPhoton30_PhotonFilter20GeV"
+"hist_PyquenUnquenched_DiJet_pt30_PbPb_5020GeV"
 );
 
 # compile the macros with g++
-g++ makeTurnOn_photons.C              $(root-config --cflags --libs) -Werror -Wall -Wextra -O2 -o makeTurnOn_photons.exe              || exit 1
 g++ makeTurnOn_fromSameFile_photons.C $(root-config --cflags --libs) -Werror -Wall -Wextra -O2 -o makeTurnOn_fromSameFile_photons.exe || exit 1
-##g++ plotTurnOn.C $(root-config --cflags --libs) -Werror -Wall -Wextra -O2 -o plotTurnOn.exe || exit 1
 
 for sampleNum in 0 1 2
 do
-    ./makeTurnOn_fromSameFile_photons.exe            "${InputHiForest[sampleNum]}" "${outFilePathHistBkgSubtract[sampleNum]}" || exit 1
-done
-
-for sampleNum in 0 1 2
-do
-    ./makeTurnOn_fromSameFile_photons.exe            "${InputHiForest[sampleNum]}" "${outFilePathHist2x2[sampleNum]}" || exit 1
-done
-
-for sampleNum in 0 1 2
-do
-    ./makeTurnOn_fromSameFile_photons.exe            "${InputHiForest[sampleNum]}" "${outFilePathHist3x3[sampleNum]}" || exit 1
+    for i in "${algoTypes[@]}"
+    do
+	outFileNameHist={$outFileNamePrefix[sampleNum]}"_"${i}".root"
+	outFilePathHist=$outDirectory"/"${outFileNameHist[sampleNum]}"_"${i}".root"
+	./makeTurnOn_fromSameFile_photons.exe            "${InputHiForest[sampleNum]}" "${outFilePathHist}" || exit 1
+    done
 done
 
 ############################################################

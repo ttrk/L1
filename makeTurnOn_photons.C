@@ -29,7 +29,7 @@ void makeTurnOn(TString inL1FileName, TString inHiForestFileName, TString outFil
 	//////// Kaya's modificiation ////////
 	// zero out regions with 0 <= region.eta <= 5 or 16 <= region.eta <= 21
 	// decide zeroOut from file name
-	bool zeroOut = ( outFileName.Contains("2x2") ||  outFileName.Contains("3x3") );
+	bool zeroOut = ( outFileName.Contains("1x1") || outFileName.Contains("2x2") ||  outFileName.Contains("3x3") );
 	std::cout << "zeroOut = " << zeroOut << std::endl;
 	//////// Kaya's modificiation - END ////////
 
@@ -201,8 +201,9 @@ void makeTurnOn(TString inL1FileName, TString inHiForestFileName, TString outFil
 
     //////// Kaya's modificiation ////////
     /*
-     *  run 2x2 and 3x3 jet finder algorithms with forward regions (eta<=5 or eta >=16) zeroed out.
+     *  run 1x1, 2x2 and 3x3 jet finder algorithms with forward regions (eta<=5 or eta >=16) zeroed out.
      *  zero out regions with 0 <= region.eta <= 5 or 16 <= region.eta <= 21
+     *  run also 1x1 jet finder algorithm. It essentially means to run over single regions.
     */
     int newMAXL1REGIONS = MAXL1REGIONS;
     if(zeroOut)
@@ -220,6 +221,10 @@ void makeTurnOn(TString inL1FileName, TString inHiForestFileName, TString outFil
     L1EmulatorSimulator::cand subregions[newMAXL1REGIONS];
     if(zeroOut)
     {
+    	if(outFileName.Contains("1x1"))
+    	{
+    		L1EmulatorSimulator::SlidingWindowJetFinder(subregions_tmp,subregions, L1EmulatorSimulator::oneByOneANDzeroWalls);
+    	}
     	if(outFileName.Contains("2x2"))
     	{
     		L1EmulatorSimulator::SlidingWindowJetFinder(subregions_tmp,subregions, L1EmulatorSimulator::twoByTwoANDzeroWalls);
@@ -230,7 +235,7 @@ void makeTurnOn(TString inL1FileName, TString inHiForestFileName, TString outFil
     	}
     	else
     	{
-    	    std::cout << "Use either 2x2 or 3x3" << std::endl;
+    	    std::cout << "Use either 1x1, 2x2 or 3x3" << std::endl;
     	    exit(1);
     	}
     }

@@ -26,7 +26,6 @@ echo "############################################################"
 # # https://github.com/CmsHI/L1EmulatorMacros/blob/master/makeTurnOn_fromSameFile_photons.C
 # # ...
 
-
 # "/mnt/hadoop/cms/store/user/luck/L1Emulator/HiForest_PbPb_photon2030.root"
 # DATA   = Skims
 # sample = Photon20/30
@@ -36,7 +35,7 @@ echo "############################################################"
 # sample = 5.02TeV MB Hydjet
 InputHiForest=(
 "/mnt/hadoop/cms/store/user/luck/L1Emulator/HiForest_PbPb_photon2030.root"
-"/mnt/hadoop/cms/store/user/luck/L1Emulator/HydjetMB_502TeV_740pre8_MCHI2_74_V3_HiForestAndEmulator_v3.root"
+"/mnt/hadoop/cms/store/user/luck/L1Emulator/HydjetMB_502TeV_740pre8_MCHI2_74_V3_HiForestAndEmulator_v5.root"
 );
 InputL1=(
 "/export/d00/scratch/ginnocen/PhotonSamples/HIHighPt-HIRun2011-RAW-photon20and30_v2_GR_P_V27A_L1UpgradeAnalyzer.root"
@@ -44,78 +43,32 @@ InputL1=(
 
 outDirectory="/export/d00/scratch/tatar/output/out_L1EmulatorMacros_v3";
 
-outFileNameHist=(
-"hist_Photon2030_zeroOut_NxN.root"
-"hist_HydjetMB_502TeV_zeroOut_NxN.root"
-);
-outFilePathHist=(
-$outDirectory"/"${outFileNameHist[0]}
-$outDirectory"/"${outFileNameHist[1]}
-);
+#declare -a algoTypes=("NOzeroOut_BkgSubtract" "zeroOut_2x2" "zeroOut_3x3");
+declare -a algoTypes=("zeroOut_1x1");
 
-outFileNameHistBkgSubtract=(
-"hist_Photon2030_NOzeroOut_BkgSubtract.root"
-"hist_HydjetMB_502TeV_NOzeroOut_BkgSubtract_v5.root"
-);
-outFilePathHistBkgSubtract=(
-$outDirectory"/"${outFileNameHistBkgSubtract[0]}
-$outDirectory"/"${outFileNameHistBkgSubtract[1]}
-);
-
-outFileNameHist2x2=(
-"hist_Photon2030_zeroOut_2x2.root"
-"hist_HydjetMB_502TeV_zeroOut_2x2_v5.root"
-);
-outFilePathHist2x2=(
-$outDirectory"/"${outFileNameHist2x2[0]}
-$outDirectory"/"${outFileNameHist2x2[1]}
-);
-
-outFileNameHist3x3=(
-"hist_Photon2030_zeroOut_3x3.root"
-"hist_HydjetMB_502TeV_zeroOut_3x3_v5.root"
-);
-outFilePathHist3x3=(
-$outDirectory"/"${outFileNameHist3x3[0]}
-$outDirectory"/"${outFileNameHist3x3[1]}
+outFileNamePrefix=(
+"hist_Photon2030"
+"hist_HydjetMB_502TeV_v5"
 );
 
 # compile the macros with g++
 g++ makeTurnOn_photons.C              $(root-config --cflags --libs) -Werror -Wall -Wextra -O2 -o makeTurnOn_photons.exe              || exit 1
 g++ makeTurnOn_fromSameFile_photons.C $(root-config --cflags --libs) -Werror -Wall -Wextra -O2 -o makeTurnOn_fromSameFile_photons.exe || exit 1
-##g++ plotTurnOn.C $(root-config --cflags --libs) -Werror -Wall -Wextra -O2 -o plotTurnOn.exe || exit 1
 
 for sampleNum in 0 1
 do
+    for i in "${algoTypes[@]}"
+    do
+	outFileNameHist={$outFileNamePrefix[sampleNum]}"_"${i}".root"
+	outFilePathHist=$outDirectory"/"${outFileNameHist[sampleNum]}"_"${i}".root"
 	if [ $sampleNum -eq 0 ]
 	then
-	    ./makeTurnOn_photons.exe "${InputL1[sampleNum]}" "${InputHiForest[sampleNum]}" "${outFilePathHistBkgSubtract[sampleNum]}" || exit 1
+	    ./makeTurnOn_photons.exe "${InputL1[sampleNum]}" "${InputHiForest[sampleNum]}" "${outFilePathHist}" || exit 1
 	elif [ $sampleNum -eq 1 ]
 	then
-	    ./makeTurnOn_fromSameFile_photons.exe            "${InputHiForest[sampleNum]}" "${outFilePathHistBkgSubtract[sampleNum]}" || exit 1
+	    ./makeTurnOn_fromSameFile_photons.exe            "${InputHiForest[sampleNum]}" "${outFilePathHist}" || exit 1
         fi
-done
-
-for sampleNum in 0 1
-do
-	if [ $sampleNum -eq 0 ]
-	then
-	    ./makeTurnOn_photons.exe "${InputL1[sampleNum]}" "${InputHiForest[sampleNum]}" "${outFilePathHist2x2[sampleNum]}" || exit 1
-	elif [ $sampleNum -eq 1 ]
-	then
-	    ./makeTurnOn_fromSameFile_photons.exe            "${InputHiForest[sampleNum]}" "${outFilePathHist2x2[sampleNum]}" || exit 1
-        fi
-done
-
-for sampleNum in 0 1
-do
-	if [ $sampleNum -eq 0 ]
-	then
-	    ./makeTurnOn_photons.exe "${InputL1[sampleNum]}" "${InputHiForest[sampleNum]}" "${outFilePathHist3x3[sampleNum]}" || exit 1
-	elif [ $sampleNum -eq 1 ]
-	then
-	    ./makeTurnOn_fromSameFile_photons.exe            "${InputHiForest[sampleNum]}" "${outFilePathHist3x3[sampleNum]}" || exit 1
-        fi
+    done
 done
 
 ############################################################
