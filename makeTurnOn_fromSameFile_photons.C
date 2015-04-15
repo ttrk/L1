@@ -220,7 +220,7 @@ void makeTurnOn(/*TString inL1Name,*/ TString inHiForestFileName, TString outFil
     	{
     		L1EmulatorSimulator::SlidingWindowJetFinder(subregions_tmp,subregions, L1EmulatorSimulator::oneByOneANDzeroWalls);
     	}
-    	if(outFileName.Contains("2x2"))
+    	else if(outFileName.Contains("2x2"))
     	{
     		L1EmulatorSimulator::SlidingWindowJetFinder(subregions_tmp,subregions, L1EmulatorSimulator::twoByTwoANDzeroWalls);
     	}
