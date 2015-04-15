@@ -27,73 +27,29 @@ echo "############################################################"
 # # ...
 
 outDirectory="/export/d00/scratch/tatar/output/out_L1EmulatorMacros_v3";
-tag="_v60GeV";
 
-outFileNameHistBkgSubtract=(
-"hist_HydjetMB_502TeV_v5_NOzeroOut_BkgSubtract"
-"hist_AllQCDPhoton30_PhotonFilter20GeV_NOzeroOut_BkgSubtract"
-"hist_PyquenUnquenched_DiJet_pt30_PbPb_5020GeV_NOzeroOut_BkgSubtract"
-);
-outFilePathHistBkgSubtract=(
-$outDirectory"/"${outFileNameHistBkgSubtract[0]}".root"
-$outDirectory"/"${outFileNameHistBkgSubtract[1]}".root"
-$outDirectory"/"${outFileNameHistBkgSubtract[2]}".root"
-);
-outFilePathTagBkgSubtract=(
-$outDirectory"/"${outFileNameHistBkgSubtract[0]}$tag
-$outDirectory"/"${outFileNameHistBkgSubtract[1]}$tag
-$outDirectory"/"${outFileNameHistBkgSubtract[2]}$tag
-);
+# http://stackoverflow.com/questions/8880603/loop-through-array-of-strings-in-bash-script
+## declare an array variable for the types of algorithms
+declare -a algoTypes=("NOzeroOut_BkgSubtract" "zeroOut_2x2" "zeroOut_3x3");
+tag="v60GeV";
 
-outFileNameHist2x2=(
-"hist_HydjetMB_502TeV_v5_zeroOut_2x2"
-"hist_AllQCDPhoton30_PhotonFilter20GeV_zeroOut_2x2"
-"hist_PyquenUnquenched_DiJet_pt30_PbPb_5020GeV_zeroOut_2x2"
-);
-outFilePathHist2x2=(
-$outDirectory"/"${outFileNameHist2x2[0]}".root"
-$outDirectory"/"${outFileNameHist2x2[1]}".root"
-$outDirectory"/"${outFileNameHist2x2[2]}".root"
-);
-outFilePathTag2x2=(
-$outDirectory"/"${outFileNameHist2x2[0]}$tag
-$outDirectory"/"${outFileNameHist2x2[1]}$tag
-$outDirectory"/"${outFileNameHist2x2[2]}$tag
-);
-
-outFileNameHist3x3=(
-"hist_HydjetMB_502TeV_v5_zeroOut_3x3"
-"hist_AllQCDPhoton30_PhotonFilter20GeV_zeroOut_3x3"
-"hist_PyquenUnquenched_DiJet_pt30_PbPb_5020GeV_zeroOut_3x3"
-);
-outFilePathHist3x3=(
-$outDirectory"/"${outFileNameHist3x3[0]}".root"
-$outDirectory"/"${outFileNameHist3x3[1]}".root"
-$outDirectory"/"${outFileNameHist3x3[2]}".root"
-);
-outFilePathTag3x3=(
-$outDirectory"/"${outFileNameHist3x3[0]}$tag
-$outDirectory"/"${outFileNameHist3x3[1]}$tag
-$outDirectory"/"${outFileNameHist3x3[2]}$tag
+fileNameHist=(
+"hist_HydjetMB_502TeV_v5"
+"hist_AllQCDPhoton30_PhotonFilter20GeV"
+"hist_PyquenUnquenched_DiJet_pt30_PbPb_5020GeV"
 );
 
 # compile the macros with g++
 g++ plotTurnOn_photons.C   $(root-config --cflags --libs) -Werror -Wall -Wextra -O2 -o plotTurnOn_photons.exe     || exit 1
-##g++ plotTurnOn.C $(root-config --cflags --libs) -Werror -Wall -Wextra -O2 -o plotTurnOn.exe || exit 1
 
 for sampleNum in 0 1 2
 do
-    ./plotTurnOn_photons.exe "${outFilePathHistBkgSubtract[sampleNum]}" "${outFilePathTagBkgSubtract[sampleNum]}"  || exit 1
-done
-
-for sampleNum in 0 1 2
-do
-    ./plotTurnOn_photons.exe "${outFilePathHist2x2[sampleNum]}" "${outFilePathTag2x2[sampleNum]}"  || exit 1
-done
-
-for sampleNum in 0 1 2
-do
-    ./plotTurnOn_photons.exe "${outFilePathHist3x3[sampleNum]}" "${outFilePathTag3x3[sampleNum]}" || exit 1
+    for i in "${algoTypes[@]}"
+    do
+	filePathHist=$outDirectory"/"${fileNameHist[sampleNum]}"_"${i}".root"
+	outFilePathTag=$outDirectory"/"${fileNameHist[sampleNum]}"_"${i}"_"$tag
+	./plotTurnOn_photons.exe "${filePathHist}" "${outFilePathTag}"  || exit 1
+    done
 done
 
 ############################################################
