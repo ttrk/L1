@@ -31,6 +31,9 @@ void makeTurnOn(TString inL1FileName, TString inHiForestFileName, TString outFil
 	// decide zeroOut from file name
 	bool zeroOut = ( outFileName.Contains("1x1") || outFileName.Contains("2x2") ||  outFileName.Contains("3x3") );
 	std::cout << "zeroOut = " << zeroOut << std::endl;
+	std::cout << "inL1FileName       = " << inL1FileName       << std::endl;
+	std::cout << "inHiForestFileName = " << inHiForestFileName << std::endl;
+	std::cout << "outFileName        = " << outFileName        << std::endl;
 	//////// Kaya's modificiation - END ////////
 
   TFile *lFile = TFile::Open(inL1FileName);

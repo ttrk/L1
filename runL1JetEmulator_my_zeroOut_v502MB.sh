@@ -58,8 +58,8 @@ for sampleNum in 0 1 2
 do
     for i in "${algoTypes[@]}"
     do
-	outFileNameHist={$outFileNamePrefix[sampleNum]}"_"${i}".root"
-	outFilePathHist=$outDirectory"/"${outFileNameHist[sampleNum]}"_"${i}".root"
+	outFileNameHist=${outFileNamePrefix[sampleNum]}"_"${i}".root"
+	outFilePathHist=$outDirectory"/"$outFileNameHist
 	./makeTurnOn_fromSameFile_photons.exe            "${InputHiForest[sampleNum]}" "${outFilePathHist}" || exit 1
     done
 done

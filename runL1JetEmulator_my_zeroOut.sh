@@ -59,8 +59,8 @@ for sampleNum in 0 1
 do
     for i in "${algoTypes[@]}"
     do
-	outFileNameHist={$outFileNamePrefix[sampleNum]}"_"${i}".root"
-	outFilePathHist=$outDirectory"/"${outFileNameHist[sampleNum]}"_"${i}".root"
+	outFileNameHist=${outFileNamePrefix[sampleNum]}"_"${i}".root"
+	outFilePathHist=$outDirectory"/"$outFileNameHist
 	if [ $sampleNum -eq 0 ]
 	then
 	    ./makeTurnOn_photons.exe "${InputL1[sampleNum]}" "${InputHiForest[sampleNum]}" "${outFilePathHist}" || exit 1
