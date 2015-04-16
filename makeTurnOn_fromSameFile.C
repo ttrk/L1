@@ -27,7 +27,7 @@ const Double_t L1_THRESHOLD[THRESHOLDS] = {0, 4, 8, 12, 16, 20, 24,
 					   100, 104, 108, 112, 116};
 
 
-void makeTurnOn(TString inL1Name, TString inHiForestFileName, TString outFileName, bool montecarlo = false)
+void makeTurnOn(TString inL1Name, TString inHiForestFileName, TString outFileName, bool montecarlo = false, bool genJets = false)
 {
   TFile *outFile = new TFile(outFileName,"RECREATE");
 
@@ -139,14 +139,6 @@ void makeTurnOn(TString inL1Name, TString inHiForestFileName, TString outFileNam
     // Only use good collision events ********
     fEvtTree->GetEntry(j);
     fSkimTree->GetEntry(j);
-    bool goodEvent = false;
-    // 5.02 TeV Hydjet missing pcollisionEventSelection for now
-    //if((pcollisionEventSelection == 1) && (montecarlo || (pHBHENoiseFilter == 1)) && (TMath::Abs(vz) < 15))
-    if((montecarlo || (pHBHENoiseFilter == 1)) && (TMath::Abs(vz) < 15))
-    {
-      goodEvent = true;
-    }
-    if(!goodEvent) continue;
 
     //std::cout << accepted[0][0]->GetName() << std::endl;
     l1Tree->GetEntry(j);
@@ -162,7 +154,7 @@ void makeTurnOn(TString inL1Name, TString inHiForestFileName, TString outFileNam
     }
 
     double maxfpt = 0;
-    if(!montecarlo)
+    if(!genJets)
     {
       for(int i = 0; i < f_num; ++i)
       {
@@ -183,6 +175,13 @@ void makeTurnOn(TString inL1Name, TString inHiForestFileName, TString outFileNam
     }
     l1Pt->Fill(maxl1pt);
 
+    bool goodEvent = false;
+    if((pcollisionEventSelection == 1) && (montecarlo || (pHBHENoiseFilter == 1)) && (TMath::Abs(vz) < 15))
+    {
+      goodEvent = true;
+    }
+    if(!goodEvent) continue;
+
     fPt[0]->Fill(maxfpt);
     if(hiBin < 60)
       fPt[1]->Fill(maxfpt);
@@ -190,6 +189,9 @@ void makeTurnOn(TString inL1Name, TString inHiForestFileName, TString outFileNam
       fPt[2]->Fill(maxfpt);
 
     corr->Fill(maxfpt,maxl1pt);
+
+    if((maxfpt > 65) && (maxl1pt < 25))
+      std::cout << "Event: " << l1_event << " Lumi: " << l1_lumi << " Run: " << l1_run << std::endl;
 
     for(int i = 0; i < THRESHOLDS; ++i)
     {
@@ -239,9 +241,9 @@ int main(int argc, char **argv)
     makeTurnOn(argv[1], argv[2], argv[3]);
     return 0;
   }
-  else if(argc == 5)
+  else if(argc == 6)
   {
-    makeTurnOn(argv[1], argv[2], argv[3], atoi(argv[4]));
+    makeTurnOn(argv[1], argv[2], argv[3], atoi(argv[4]), atoi(argv[5]));
   }
   else
   {
