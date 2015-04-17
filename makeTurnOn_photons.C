@@ -131,14 +131,18 @@ void makeTurnOn(TString inL1FileName, TString inHiForestFileName, TString outFil
 
   // Make the event-matching map ************
   EventMatchingCMS *matcher = new EventMatchingCMS();
+  int duplicates = 0;
   std::cout << "Begin making map." << std::endl;
   Long64_t l_entries = l1Tree->GetEntries();
   for(Long64_t j = 0; j < l_entries; ++j)
   {
     l1Tree->GetEntry(j);
-    matcher->addEvent(l1_event, l1_lumi, l1_run, j);
+    bool status = matcher->addEvent(l1_event, l1_lumi, l1_run, j);
+    if(status == false)
+      duplicates++;
   }
   std::cout << "Finished making map." << std::endl;
+  std::cout << "Duplicate entries: " << duplicates << std::endl;
   // **********************
 
   outFile->cd();
@@ -164,7 +168,7 @@ void makeTurnOn(TString inL1FileName, TString inHiForestFileName, TString outFil
     count++;
     //**************
 
-    l1Tree->GetEntry(j);
+    l1Tree->GetEntry(l1Entry);
     f1Tree->GetEntry(j);
 
     double maxl1pt = 0;
