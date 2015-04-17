@@ -28,12 +28,57 @@ namespace L1EmulatorSimulator {
     twoByTwoANDzeroWallsANDsigmaSubtraction
   };
 
+  enum seedObject {
+    emcands,
+    regions,
+    subRegions,
+    twoByTwoJets,
+    threeByThreeJets
+  };
+
+  double physicalEta(int gctEta);
+  double physicalPhi(int gctPhi);
+
   int deltaGctPhi(int phi1, int phi2);
   void CaloRingBackgroundSubtraction(cand region[396], cand subregion[396]);
   void CaloRingSigmaBackgroundSubtraction(cand region[396], cand subregion[396]);
   void SlidingWindowJetFinder(cand region[396], cand output[8], algoVariation algo);
   void OneByOneFinder(cand region[396], cand output[8], algoVariation algo);
   void TwoByTwoFinder(cand region[396], cand output[8], algoVariation algo);
+
+  double physicalEta(int gctEta)
+  {
+    const double rgnEtaValues[11] = {
+      0.174, // HB and inner HE bins are 0.348 wide
+      0.522,
+      0.870,
+      1.218,
+      1.566,
+      1.956, // Last two HE bins are 0.432 and 0.828 wide
+      2.586,
+      3.250, // HF bins are 0.5 wide
+      3.750,
+      4.250,
+      4.750
+    };
+    if(gctEta < 11) {
+      return -rgnEtaValues[-(gctEta - 10)]; // 0-10 are negative eta values
+    }
+    else if (gctEta < 22) {
+      return rgnEtaValues[gctEta - 11]; // 11-21 are positive eta values
+    }
+    return -9;
+  }
+
+  double physicalPhi(int gctPhi)
+  {
+    if (gctPhi < 10)
+      return 2. * M_PI * gctPhi / 18.;
+    if (gctPhi < 18)
+      return -M_PI + 2. * M_PI * (gctPhi - 9) / 18.;
+    return -9;
+
+  }
 
   int deltaGctPhi(int phi1, int phi2)
   {
@@ -317,7 +362,7 @@ namespace L1EmulatorSimulator {
 
   }
 
-  void TwoByTwoFinder(cand region[396], cand output[8], algoVariation algo)
+  void TwoByTwoFinder(cand region[396], cand output[8], algoVariation algo = nominal)
   {
     std::vector<cand> forjets;
     std::vector<cand> cenjets;
