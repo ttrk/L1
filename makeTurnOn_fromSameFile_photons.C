@@ -15,48 +15,25 @@
 #include <vector>
 #include <iostream>
 
-//#include "EventMatchingCMS.h"
 #include "L1EmulatorSimulator.h"
+
+using namespace L1EmulatorSimulator;
 
 const int MAXL1EMCANDS = 144;
 const int MAXL1REGIONS = 396;
 const int MAXL1JETS = 8;
 const int MAXPHOTONS = 500;
 const Int_t THRESHOLDS = 81;
-// const Double_t L1_THRESHOLD[THRESHOLDS] = {0, 4, 8, 12, 16, 20, 24,
-// 					   28, 32, 36, 40, 44, 48,
-// 					   52, 56, 60, 64, 68, 72,
-// 					   76, 80, 84, 88, 92, 96,
-// 					   100, 104, 108, 112, 116};
 
-
-void makeTurnOn(/*TString inL1Name,*/ TString inHiForestFileName, TString outFileName)
+void makeTurnOn(TString inHiForestFileName, TString outFileName, seedObject seed, double offlineEtaCut, bool offlineIso)
 {
   TFile *outFile = new TFile(outFileName,"RECREATE");
 
-  //TFile *lFile = TFile::Open(inL1FileName);
-  //TTree *l1Tree = (TTree*)lFile->Get("L1UpgradeTree");
-
-  // TChain *f1Tree = new TChain("akPu3CaloJetAnalyzer/t","f1Tree");
-  // TChain *fEvtTree = new TChain("hiEvtAnalyzer/HiTree","fEvtTree");
-  // TChain *fSkimTree = new TChain("skimanalysis/HltTree","fSkimTree");
-  // TChain *l1Tree = new TChain("L1UpgradeAnalyzer/L1UpgradeTree","l1Tree");
-
-  // fEvtTree->Add(inHiForestFileName);
-  // fSkimTree->Add(inHiForestFileName);
-  // f1Tree->Add(inHiForestFileName);
-  // l1Tree->Add(inHiForestFileName);
-
   TFile *inFile = TFile::Open(inHiForestFileName);
-  //TFile *inL1File = TFile::Open(inL1Name);
-  //TTree *f1Tree = (TTree*)inFile->Get("akPu3CaloJetAnalyzer/t");
   TTree *f1Tree = (TTree*)inFile->Get("multiPhotonAnalyzer/photon");
   TTree *fEvtTree = (TTree*)inFile->Get("hiEvtAnalyzer/HiTree");
   TTree *fSkimTree = (TTree*)inFile->Get("skimanalysis/HltTree");
   TTree *l1Tree = (TTree*)inFile->Get("L1UpgradeAnalyzer/L1UpgradeTree");
-  //TTree *l1Tree = (TTree*)inL1File->Get("L1UpgradeTree");
-
-  //f1Tree->AddFriend(l1Tree);
 
   Int_t l1_event, l1_run, l1_lumi;
   Int_t l1_hwPt[MAXL1JETS], l1_hwEta[MAXL1JETS], l1_hwPhi[MAXL1JETS];
@@ -147,6 +124,7 @@ void makeTurnOn(/*TString inL1Name,*/ TString inHiForestFileName, TString outFil
   }
 
   TH2D *corr = new TH2D("corr",";offline p_{T};l1 p_{T}",nBins,0,maxPt,nBins,0,maxPt);
+  TH2D *deltaMap = new TH2D("deltamap",";#Delta #eta;#Delta #phi",100, 0, 10, 100, 0, 3.15);
 
   Long64_t entries = f1Tree->GetEntries();
   for(Long64_t j = 0; j < entries; ++j)
@@ -154,58 +132,163 @@ void makeTurnOn(/*TString inL1Name,*/ TString inHiForestFileName, TString outFil
     if(j % 10000 == 0)
       printf("%lld / %lld\n",j,entries);
 
-    // Only use good collision events ********
     fEvtTree->GetEntry(j);
     fSkimTree->GetEntry(j);
 
-    //std::cout << accepted[0][0]->GetName() << std::endl;
     l1Tree->GetEntry(j);
     f1Tree->GetEntry(j);
 
     double maxl1pt = 0;
-    // for(int i = 0; i < MAXL1EMCANDS; ++i)
-    // {
-    //   if(emcand_hwPt[i] > maxl1pt)
-    // 	maxl1pt = emcand_hwPt[i];
-    // }
-    L1EmulatorSimulator::cand regions[396];
-    L1EmulatorSimulator::cand subregions[396];
-    for(int i = 0; i < MAXL1REGIONS; ++i)
+    double maxl1eta = -10;
+    double maxl1phi = -10;
+    switch(seed){
+    case emcands:
     {
-      regions[i].pt = region_hwPt[i];
-      regions[i].eta = region_hwEta[i];
-      regions[i].phi = region_hwPhi[i];
+      for(int i = 0; i < MAXL1EMCANDS; ++i)
+      {
+	if(emcand_hwPt[i] > maxl1pt)
+	{
+	  maxl1pt = emcand_hwPt[i];
+	  maxl1eta = physicalEta(emcand_hwEta[i]);
+	  maxl1phi = physicalPhi(emcand_hwPhi[i]);
+	}
+      }
     }
-    L1EmulatorSimulator::CaloRingBackgroundSubtraction(regions, subregions);
-
-    for(int i = 0; i < MAXL1REGIONS; ++i)
+    break;
+    case regions:
     {
-      if(subregions[i].eta < 6 || subregions[i].eta > 15) continue;
-      if(subregions[i].pt*0.5 > maxl1pt)
-    	maxl1pt = subregions[i].pt *0.5;
+      for(int i = 0; i < MAXL1REGIONS; ++i)
+      {
+	if(region_hwPt[i] * 0.5 > maxl1pt)
+	{
+	  if(region_hwEta[i] < 6 || region_hwEta[i] > 15) continue;
+	  maxl1pt = region_hwPt[i] * 0.5;
+	  maxl1eta = physicalEta(region_hwEta[i]);
+	  maxl1phi = physicalPhi(region_hwPhi[i]);
+	}
+      }
+    }
+    break;
+    case subRegions:
+    {
+      L1EmulatorSimulator::cand regions[396];
+      L1EmulatorSimulator::cand subregions[396];
+      for(int i = 0; i < MAXL1REGIONS; ++i)
+      {
+	regions[i].pt = region_hwPt[i];
+	regions[i].eta = region_hwEta[i];
+	regions[i].phi = region_hwPhi[i];
+      }
+      L1EmulatorSimulator::CaloRingBackgroundSubtraction(regions, subregions);
+
+      for(int i = 0; i < MAXL1REGIONS; ++i)
+      {
+	if(subregions[i].eta < 6 || subregions[i].eta > 15) continue;
+	if(subregions[i].pt*0.5 > maxl1pt)
+	{
+	  maxl1pt = subregions[i].pt * 0.5;
+	  maxl1eta = physicalEta(subregions[i].eta);
+	  maxl1phi = physicalPhi(subregions[i].phi);
+	}
+      }
+    }
+    break;
+    case twoByTwoJets:
+    {
+      L1EmulatorSimulator::cand regions[396];
+      L1EmulatorSimulator::cand subregions[396];
+      for(int i = 0; i < MAXL1REGIONS; ++i)
+      {
+	regions[i].pt = region_hwPt[i];
+	regions[i].eta = region_hwEta[i];
+	regions[i].phi = region_hwPhi[i];
+      }
+      L1EmulatorSimulator::CaloRingBackgroundSubtraction(regions, subregions);
+      for(int i = 0; i < MAXL1REGIONS; ++i)
+      {
+	if(subregions[i].eta < 6 || subregions[i].eta > 15)
+	  subregions[i].pt = 0;
+      }
+      L1EmulatorSimulator::cand jets[8];
+      L1EmulatorSimulator::TwoByTwoFinder(subregions, jets);
+
+      for(int i = 0; i < MAXL1JETS; ++i)
+      {
+	if(jets[i].pt*4 > maxl1pt)
+	{
+	  maxl1pt = jets[i].pt * 4;
+	  maxl1eta = physicalEta(jets[i].eta);
+	  maxl1phi = physicalPhi(jets[i].phi);
+	}
+      }
+    }
+    break;
+    case threeByThreeJets:
+    {
+      L1EmulatorSimulator::cand regions[396];
+      L1EmulatorSimulator::cand subregions[396];
+      for(int i = 0; i < MAXL1REGIONS; ++i)
+      {
+	regions[i].pt = region_hwPt[i];
+	regions[i].eta = region_hwEta[i];
+	regions[i].phi = region_hwPhi[i];
+      }
+      L1EmulatorSimulator::CaloRingBackgroundSubtraction(regions, subregions);
+      for(int i = 0; i < MAXL1REGIONS; ++i)
+      {
+	if(subregions[i].eta < 6 || subregions[i].eta > 15)
+	  subregions[i].pt = 0;
+      }
+      L1EmulatorSimulator::cand jets[8];
+      L1EmulatorSimulator::SlidingWindowJetFinder(subregions, jets);
+
+      for(int i = 0; i < MAXL1JETS; ++i)
+      {
+	if(jets[i].pt*4 > maxl1pt)
+	{
+	  maxl1pt = jets[i].pt * 4;
+	  maxl1eta = physicalEta(jets[i].eta);
+	  maxl1phi = physicalPhi(jets[i].phi);
+	}
+      }
+    }
+    break;
+    default:
+      std::cout << "Invalid seed type specified." << std::endl;
+      return;
     }
 
     double maxfpt = 0;
+    double maxfeta = -10;
+    double maxfphi = -10;
     for(int i = 0; i < nPhoton; ++i)
     {
-      // if((cc4[i] + cr4[i] + ct4PtCut20[i]) < 0.9)
-      if(TMath::Abs(photon_eta[i]) < 1.4791)
-      // if(!isEle[i])
-      if(TMath::Abs(seedTime[i])<3)
-      if(swissCrx[i] < 0.9)
-      if(sigmaIetaIeta[i] > 0.002)
-      if(sigmaIphiIphi[i] > 0.002)
-      // if(hadronicOverEm[i] < 0.1)
-      if(photon_pt[i] > maxfpt) {
-	maxfpt = photon_pt[i];
-      }
+      if(TMath::Abs(photon_eta[i]) < offlineEtaCut)
+	if(!isEle[i])
+	  if(TMath::Abs(seedTime[i])<3)
+	    if(swissCrx[i] < 0.9)
+	      if(sigmaIetaIeta[i] > 0.002)
+		if(sigmaIphiIphi[i] > 0.002)
+		  if(photon_pt[i] > maxfpt) {
+		    if(offlineIso){
+		      if((cc4[i] + cr4[i] + ct4PtCut20[i]) < 0.9)
+			if(hadronicOverEm[i] < 0.1)
+			{
+			  maxfpt = photon_pt[i];
+			  maxfeta = photon_eta[i];
+			  maxfphi = photon_phi[i];
+			}
+		    } else {
+		      maxfpt = photon_pt[i];
+		      maxfeta = photon_eta[i];
+		      maxfphi = photon_phi[i];
+		    }
+		  }
     }
     l1Pt->Fill(maxl1pt);
 
     bool goodEvent = false;
-    // 5.02 TeV Hydjet missing pcollisionEventSelection for now
-    //if((pcollisionEventSelection == 1) && (montecarlo || (pHBHENoiseFilter == 1)) && (TMath::Abs(vz) < 15))
-    if((TMath::Abs(vz) < 15))
+    if((pcollisionEventSelection == 1) && (TMath::Abs(vz) < 15))
     {
       goodEvent = true;
     }
@@ -218,6 +301,7 @@ void makeTurnOn(/*TString inL1Name,*/ TString inHiForestFileName, TString outFil
       fPt[2]->Fill(maxfpt);
 
     corr->Fill(maxfpt,maxl1pt);
+    deltaMap->Fill(TMath::Abs(maxl1eta-maxfeta), TMath::ACos(TMath::Cos(maxl1phi - maxfphi)));
 
     for(int i = 0; i < THRESHOLDS; ++i)
     {
@@ -262,14 +346,13 @@ void makeTurnOn(/*TString inL1Name,*/ TString inHiForestFileName, TString outFil
 
 int main(int argc, char **argv)
 {
-  if(argc == 3)
+  if(argc == 6)
   {
-    makeTurnOn(argv[1], argv[2]);
+    makeTurnOn(argv[1], argv[2], (seedObject)atoi(argv[3]), atof(argv[4]), atoi(argv[5]));
     return 0;
   }
   else
   {
-    std::cout << "Usage: \nmakeTurnOn_fromSameFile.exe <input_HiForest_file> <output_file>" << std::endl;
     return 1;
   }
 }
