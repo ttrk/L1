@@ -364,6 +364,7 @@ void makeTurnOn(TString inL1FileName, TString inHiForestFileName, TString outFil
   fPt[1]->Write();
   fPt[2]->Write();
   corr->Write();
+  deltaMap->Write();
   for(int k = 0; k < THRESHOLDS; ++k){
     for(int l = 0; l < 3; ++l)
     {
