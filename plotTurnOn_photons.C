@@ -1,6 +1,9 @@
 #include <TFile.h>
 #include <TH1D.h>
+<<<<<<< HEAD
 #include <TH2D.h>
+=======
+>>>>>>> master_Alex
 #include <TCanvas.h>
 #include <TGraphAsymmErrors.h>
 #include <TLegend.h>
@@ -12,8 +15,12 @@ void plotTurnOn(TString inFileName, TString outFileTag)
   TFile *inFile = TFile::Open(inFileName);
 
   const Int_t THRESHOLDS = 4;
+<<<<<<< HEAD
 //  const Double_t L1_THRESHOLD[THRESHOLDS] = {4, 12, 20, 29};
   const Double_t L1_THRESHOLD[THRESHOLDS] = {45, 50, 55, 59};
+=======
+  const Double_t L1_THRESHOLD[THRESHOLDS] = {4, 12, 20, 29};
+>>>>>>> master_Alex
   const Int_t COLORS[THRESHOLDS] = {kBlack, kRed, kBlue, kGreen+3};//, kMagenta+3};
   TGraphAsymmErrors *asymm[THRESHOLDS];//[2];
 
@@ -68,6 +75,7 @@ void plotTurnOn(TString inFileName, TString outFileTag)
 
   c1->SaveAs(Form("%s_turnon.pdf",outFileTag.Data()));
 
+<<<<<<< HEAD
   //////// Kaya's modificiation ////////
   //  plot L1-Offline correlation
   TH2D* corr = (TH2D*)inFile->Get("corr");
@@ -76,6 +84,8 @@ void plotTurnOn(TString inFileName, TString outFileTag)
   gPad->SetLogz();
   c2->SaveAs(Form("%s_corr.pdf",outFileTag.Data()));
   //////// Kaya's modificiation - END ////////
+=======
+>>>>>>> master_Alex
 }
 
 int main(int argc, char **argv)

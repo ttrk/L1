@@ -41,10 +41,14 @@ void makeRateCurve(TString inFileName)
       //std::cout << integral << std::endl;
       rate[n]->Fill(j, (double)integral/total_integral);
       //rate[n]->Fill(j,integral);
+<<<<<<< HEAD
       //////// Kaya's modificiation ////////
 //      std::cout << (double)integral/total_integral*30000. << std::endl;
       std::cout << (double)integral/total_integral*30000. << ", = " << i << std::endl;
       //////// Kaya's modificiation - END ////////
+=======
+      std::cout << (double)integral/total_integral*30000. << std::endl;
+>>>>>>> master_Alex
     }
   }
 
