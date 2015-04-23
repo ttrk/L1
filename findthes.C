@@ -130,7 +130,7 @@ void findthes(TString inFileName = "Hydjet502_JetResults_zeroWalls.root",TString
   }
 
   const int Nthresholds=11;
-  double offlinethresholds[Nthresholds]={26.5,34.5,42.5,50.5,62.5,74.5,86.5,98.5,110.5,122.5,130.5};
+  double offlinethresholds[Nthresholds]={26.5,34.5,42.5,50.5,62.5,74.5,86.5,98.5,109.5,122.5,130.5};
   int L1thresholds[Nthresholds]={-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1};
   double rates[Nthresholds]={-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1};
 
