@@ -29,9 +29,9 @@ int find(TString infname, Double_t pTthes, Double_t effthes, int cent)
   int i=0,j=0;
   Bool_t flag=false;
   TString ingname;
-  for(i=118;i>=0;i-=2)
+  for(i=199;i>=0;i-=1)
     {
-      ingname = Form("asymm_pt_%i_%d",i,cent);
+      ingname = Form("asymm_pt_%.1f_%d",i*0.5,cent);
       TGraphAsymmErrors* ga = (TGraphAsymmErrors*)inf->Get(ingname);
       if(!ga) break;
       Double_t vx,vy,interx,intermin=1000000.;
@@ -98,7 +98,7 @@ void findthes(TString inFileName = "Hydjet502_JetResults_zeroWalls.root",TString
   TTree *inTree;
   inTree = (TTree*)inFile->Get("L1UpgradeTree");
 
-  Int_t l1_pt[MAXJETS];
+  Float_t l1_pt[MAXJETS];
   inTree->SetBranchAddress("jet_pt",l1_pt);
 
   TH1D *counts = new TH1D("counts","counts;Leading L1 Jet p_{T};Count",nBins,0,maxPt);
@@ -130,7 +130,7 @@ void findthes(TString inFileName = "Hydjet502_JetResults_zeroWalls.root",TString
   }
 
   const int Nthresholds=11;
-  double offlinethresholds[Nthresholds]={26.75,34.75,42.75,50.75,62.75,74.75,86.75,98.75,109.75,122.75,130.25};
+  double offlinethresholds[Nthresholds]={26.25,34.25,42.25,50.25,62.25,74.25,86.25,97.75,109.75,122.75,130.25};
   int L1thresholds[Nthresholds]={-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1};
   double rates[Nthresholds]={-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1};
 

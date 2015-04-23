@@ -11,15 +11,15 @@ void plotTurnOn(TString inFileName, TString outFileTag)
   TFile *inFile = TFile::Open(inFileName);
 
   const Int_t THRESHOLDS = 4;
-  const Float_t L1_THRESHOLD[THRESHOLDS] = {16.5, 36, 52, 80};
+  const Float_t L1_THRESHOLD[THRESHOLDS] = {16, 36, 52, 80};
   const Int_t COLORS[THRESHOLDS] = {kBlack, kRed, kBlue, kGreen+3};//, kMagenta+3};
   TGraphAsymmErrors *asymm[THRESHOLDS];//[2];
 
   for(int i = 0; i < THRESHOLDS; i++)
-  {
+  { 
     //for(int j = 0; j < 2; j++)
-    {
-      asymm[i] = (TGraphAsymmErrors*)inFile->Get(Form("asymm_pt_%.1f_0",(int)L1_THRESHOLD[i]));
+    { 
+      asymm[i] = (TGraphAsymmErrors*)inFile->Get(Form("asymm_pt_%.1f_0",L1_THRESHOLD[i]));
       asymm[i]->SetMarkerColor(COLORS[i]);
       asymm[i]->SetLineColor(COLORS[i]);
     }

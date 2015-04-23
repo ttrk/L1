@@ -25,9 +25,6 @@ const Int_t THRESHOLDS = 200; // This will correspond to 0 to 199.5 GeV in 0.5 G
 void makeTurnOn(TString inL1Name, TString inHiForestFileName, TString outFileName, bool montecarlo = false, bool genJets = false)
 {
 
-  Double_t L1_THRESHOLD[THRESHOLDS];
-  for (int i=0;i<60;i++) L1_THRESHOLD[i]=i*2;
-
   TFile *outFile = new TFile(outFileName,"RECREATE");
 
   //TFile *lFile = TFile::Open(inL1FileName);
