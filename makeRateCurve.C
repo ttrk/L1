@@ -22,7 +22,7 @@ void makeRateCurve(TString inFileName = "Hydjet502_JetResults.root", bool second
   else
     inTree = (TTree*)inFile->Get("L1UpgradeAnalyzer/L1UpgradeTree");
 
-  Int_t l1_pt[MAXJETS];
+  Float_t l1_pt[MAXJETS];
   inTree->SetBranchAddress("jet_pt",l1_pt);
 
   TH1D *counts = new TH1D("counts","counts;Leading L1 Jet p_{T};Count",nBins,0,maxPt);

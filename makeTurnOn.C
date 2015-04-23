@@ -19,12 +19,12 @@
 
 const int MAXL1JETS = 8;
 const int MAXJETS = 500;
-const Int_t THRESHOLDS = 30;
-const Double_t L1_THRESHOLD[THRESHOLDS] = {0, 4, 8, 12, 16, 20, 24,
-					   28, 32, 36, 40, 44, 48,
-					   52, 56, 60, 64, 68, 72,
-					   76, 80, 84, 88, 92, 96,
-					   100, 104, 108, 112, 116};
+const Int_t THRESHOLDS = 200; // This will correspond to 0 to 199.5 GeV in 0.5 GeV increments
+// const Double_t L1_THRESHOLD[THRESHOLDS] = {0, 4, 8, 12, 16, 20, 24,
+// 					   28, 32, 36, 40, 44, 48,
+// 					   52, 56, 60, 64, 68, 72,
+// 					   76, 80, 84, 88, 92, 96,
+// 					   100, 104, 108, 112, 116};
 
 void makeTurnOn(TString inL1FileName, TString inHiForestFileName, TString outFileName, bool montecarlo = false, bool genJets = false)
 {
@@ -33,7 +33,7 @@ void makeTurnOn(TString inL1FileName, TString inHiForestFileName, TString outFil
 
   Int_t l1_event, l1_run, l1_lumi;
   Int_t l1_hwPt[MAXL1JETS], l1_hwEta[MAXL1JETS], l1_hwPhi[MAXL1JETS];
-  Int_t l1_pt[MAXL1JETS];
+  Float_t l1_pt[MAXL1JETS];
 
   l1Tree->SetBranchAddress("event",&l1_event);
   l1Tree->SetBranchAddress("run",&l1_run);
@@ -89,7 +89,7 @@ void makeTurnOn(TString inL1FileName, TString inHiForestFileName, TString outFil
 
   TFile *outFile = new TFile(outFileName,"RECREATE");
 
-  const int nBins = 75;
+  const int nBins = 600;
   const double maxPt = 300;
 
   TH1D *l1Pt = new TH1D("l1Pt",";L1 p_{T} (GeV)",nBins,0,maxPt);
@@ -102,7 +102,7 @@ void makeTurnOn(TString inL1FileName, TString inHiForestFileName, TString outFil
   for(int i = 0; i < THRESHOLDS; ++i)
     for(int j = 0; j < 3; ++j)
     {
-      accepted[i][j] = new TH1D(Form("accepted_pt%d_%d",(int)L1_THRESHOLD[i],j),";offline p_{T}",nBins,0,maxPt);
+      accepted[i][j] = new TH1D(Form("accepted_pt%.1f_%d",(i*0.5),j),";offline p_{T}",nBins,0,maxPt);
     }
 
   TH2D *corr = new TH2D("corr",";offline p_{T};l1 p_{T}",nBins,0,maxPt,nBins,0,maxPt);
@@ -195,7 +195,7 @@ void makeTurnOn(TString inL1FileName, TString inHiForestFileName, TString outFil
 
     for(int k = 0; k < THRESHOLDS; ++k)
     {
-      if(maxl1pt>L1_THRESHOLD[k])
+      if(maxl1pt> (k*0.5))
       {
 	accepted[k][0]->Fill(maxfpt);
 	if(hiBin < 60)
@@ -214,7 +214,7 @@ void makeTurnOn(TString inL1FileName, TString inHiForestFileName, TString outFil
     {
       a[k][l] = new TGraphAsymmErrors();
       a[k][l]->BayesDivide(accepted[k][l],fPt[l]);
-      a[k][l]->SetName(Form("asymm_pt_%d_%d",(int)L1_THRESHOLD[k],l));
+      a[k][l]->SetName(Form("asymm_pt_%.1f_%d",(k*0.5),l));
     }
   }
 

@@ -11,7 +11,7 @@ void plotTurnOn(TString inFileName, TString outFileTag)
   TFile *inFile = TFile::Open(inFileName);
 
   const Int_t THRESHOLDS = 4;
-  const Double_t L1_THRESHOLD[THRESHOLDS] = {16, 36, 52, 80};
+  const Float_t L1_THRESHOLD[THRESHOLDS] = {16.5, 36, 52, 80};
   const Int_t COLORS[THRESHOLDS] = {kBlack, kRed, kBlue, kGreen+3};//, kMagenta+3};
   TGraphAsymmErrors *asymm[THRESHOLDS];//[2];
 
@@ -19,7 +19,7 @@ void plotTurnOn(TString inFileName, TString outFileTag)
   {
     //for(int j = 0; j < 2; j++)
     {
-      asymm[i] = (TGraphAsymmErrors*)inFile->Get(Form("asymm_pt_%d_0",(int)L1_THRESHOLD[i]));
+      asymm[i] = (TGraphAsymmErrors*)inFile->Get(Form("asymm_pt_%.1f_0",(int)L1_THRESHOLD[i]));
       asymm[i]->SetMarkerColor(COLORS[i]);
       asymm[i]->SetLineColor(COLORS[i]);
     }
@@ -27,7 +27,7 @@ void plotTurnOn(TString inFileName, TString outFileTag)
   }
 
   // these values MUST MATCH those used in makeTurnOn.C
-  const int nBins = 75;
+  const int nBins = 600;
   const double maxPt = 300;
 
   TH1D *hEmpty = new TH1D("hEmpty",Form(";Jet p_{T} (GeV);Efficiency"),nBins,0,maxPt);
