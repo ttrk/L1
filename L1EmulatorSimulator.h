@@ -285,7 +285,7 @@ namespace L1EmulatorSimulator {
 	  }
 
 	  cand theJet;
-	  theJet.pt = jetET / 8; // factor of 8 comes from hardware scale change
+	  theJet.pt = jetET; // factor of 8 comes from hardware scale change
 	  theJet.eta = jetEta;
 	  theJet.phi = jetPhi;
 
@@ -327,7 +327,7 @@ namespace L1EmulatorSimulator {
     std::vector<cand> cenjets;
 
     for(int i = 0; i < 396; i++) {
-      region[i].pt = region[i].pt /8;
+      region[i].pt = region[i].pt;
       if((algo == oneByOneANDzeroWalls) || (algo == oneByOneANDzeroWallsANDsigmaSubtraction))
       {
 	if(region[i].eta == 4 || region[i].eta == 17)
@@ -416,7 +416,7 @@ namespace L1EmulatorSimulator {
       int jetEta = regionEta;
 
       cand theJet;
-      theJet.pt = jetET / 8; // factor of 8 comes from hardware scale change
+      theJet.pt = jetET; // factor of 8 comes from hardware scale change
       theJet.eta = jetEta;
       theJet.phi = jetPhi;
 

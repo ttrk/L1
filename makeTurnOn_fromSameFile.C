@@ -19,16 +19,15 @@
 
 const int MAXL1JETS = 8;
 const int MAXJETS = 500;
-const Int_t THRESHOLDS = 30;
-const Double_t L1_THRESHOLD[THRESHOLDS] = {0, 4, 8, 12, 16, 20, 24,
-					   28, 32, 36, 40, 44, 48,
-					   52, 56, 60, 64, 68, 72,
-					   76, 80, 84, 88, 92, 96,
-					   100, 104, 108, 112, 116};
+const Int_t THRESHOLDS = 60;
 
 
 void makeTurnOn(TString inL1Name, TString inHiForestFileName, TString outFileName, bool montecarlo = false, bool genJets = false)
 {
+
+  Double_t L1_THRESHOLD[THRESHOLDS];
+  for (int i=0;i<60;i++) L1_THRESHOLD[i]=i*2;
+
   TFile *outFile = new TFile(outFileName,"RECREATE");
 
   //TFile *lFile = TFile::Open(inL1FileName);
@@ -110,7 +109,7 @@ void makeTurnOn(TString inL1Name, TString inHiForestFileName, TString outFileNam
     f1Tree->SetBranchAddress("genphi",genphi);
   }
 
-  const int nBins = 75;
+  const int nBins = 300;
   const double maxPt = 300;
 
   TH1D *l1Pt = new TH1D("l1Pt",";L1 p_{T} (GeV)",nBins,0,maxPt);

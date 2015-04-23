@@ -19,8 +19,8 @@ using namespace std;
 
 #define BIN_NUM 40;
 const int MAXJETS = 8;
-const int nBins = 64;
-const int maxPt = 256; // make sure that maxPt/nBins = 4.
+const int nBins = 300;
+const int maxPt = 300; // make sure that maxPt/nBins = 4.
 
 
 int find(TString infname, Double_t pTthes, Double_t effthes, int cent)
@@ -29,7 +29,7 @@ int find(TString infname, Double_t pTthes, Double_t effthes, int cent)
   int i=0,j=0;
   Bool_t flag=false;
   TString ingname;
-  for(i=116;i>=0;i-=4)
+  for(i=118;i>=0;i-=2)
     {
       ingname = Form("asymm_pt_%i_%d",i,cent);
       TGraphAsymmErrors* ga = (TGraphAsymmErrors*)inf->Get(ingname);
@@ -126,11 +126,11 @@ void findthes(TString inFileName = "Hydjet502_JetResults_zeroWalls.root",TString
     double j = (double)i*(double)maxPt/(double)nBins;
     double integral = counts->Integral(i+1, nBins);
     rate->Fill(j, (double)integral/total_integral);
-    //std::cout << "L1_SingleJet" << j << "\t" << integral/total_integral*30000 << std::endl;
+    std::cout << "L1_SingleJet" << j << "\t" << integral/total_integral*30000 << std::endl;
   }
 
   const int Nthresholds=11;
-  double offlinethresholds[Nthresholds]={26.,34.,42.,50.,62.,74.,86.,98.,110.,122.,130.};
+  double offlinethresholds[Nthresholds]={26.5,34.5,42.5,50.5,62.5,74.5,86.5,98.5,110.5,122.5,130.5};
   int L1thresholds[Nthresholds]={-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1};
   double rates[Nthresholds]={-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1};
 
@@ -138,7 +138,8 @@ void findthes(TString inFileName = "Hydjet502_JetResults_zeroWalls.root",TString
   for(int m=0; m<Nthresholds;m++){
     L1thresholds[m]=find(infn, offlinethresholds[m], 1.,centrality);
     std::cout<<"threshold"<<L1thresholds[m]<<std::endl;
-    rates[m]=rate->GetBinContent(int(L1thresholds[m]/4)+1)*30000;
+    rates[m]=rate->GetBinContent(int(L1thresholds[m])+1)*30000;
+    cout<<"rate="<<rates[m]<<std::endl;
   }  
    TCanvas* c1 = new TCanvas("c1","A Simple Graph with assymetric error bars",200,10,700,500);
    c1->SetFillColor(42);

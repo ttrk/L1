@@ -114,7 +114,7 @@ void L1JetEmulator(TString l1_input = "/export/d00/scratch/luck/HydjetMB_740pre8
     for(int i = 0; i < 8; i++)
     {
       jet_hwPt[i] = outJets[i].pt;
-      jet_pt[i] = outJets[i].pt * 4;
+      jet_pt[i] = outJets[i].pt * 0.5;
       jet_hwEta[i] = outJets[i].eta;
       jet_hwPhi[i] = outJets[i].phi;
     }

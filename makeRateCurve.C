@@ -12,8 +12,8 @@ void makeRateCurve(TString inFileName = "Hydjet502_JetResults.root", bool second
   TH1::SetDefaultSumw2();
 
   const int MAXJETS = 8;
-  const int nBins = 64;
-  const int maxPt = 256; // make sure that maxPt/nBins = 4.
+  const int nBins = 300;
+  const int maxPt = 300; // make sure that maxPt/nBins = 4.
 
   TFile *inFile = TFile::Open(inFileName);
   TTree *inTree;
@@ -54,8 +54,8 @@ void makeRateCurve(TString inFileName = "Hydjet502_JetResults.root", bool second
     double j = (double)i*(double)maxPt/(double)nBins;
     double integral = counts->Integral(i+1, nBins);
     rate->Fill(j, (double)integral/total_integral);
-    //std::cout << "L1_SingleJet" << j << "\t" << integral/total_integral*30000 << std::endl;
-    std::cout << integral/total_integral*30000 << std::endl;
+    std::cout << "L1_SingleJet" << j << "\t" << integral/total_integral*30000 << std::endl;
+    //std::cout << integral/total_integral*30000 << std::endl;
   }
 
   //TCanvas *c1 = new TCanvas();
