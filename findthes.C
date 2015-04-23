@@ -84,7 +84,7 @@ double find(TString infname, Double_t pTthes, Double_t effthes, int cent)
       //cout<<">>>> File <"<<infname<<"> has the thredshold <"<<ingname<<"> for "<<effthes*100<<"% at "<<pTthes<<" GeV/c"<<endl;
       //cout<<">>>> RESULT ENDS"<<endl;
       //cout<<endl;
-      return i/2;
+      return double(i)/2.;
     }
   
 }
