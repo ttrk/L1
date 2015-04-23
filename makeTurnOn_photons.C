@@ -127,7 +127,11 @@ void makeTurnOn(TString inL1FileName, TString inHiForestFileName, TString outFil
   }
 
   TH2D *corr = new TH2D("corr",";offline p_{T};l1 p_{T}",nBins,0,maxPt,nBins,0,maxPt);
-  TH2D *deltaMap = new TH2D("deltamap",";#Delta #eta;#Delta #phi",100, 0, 10, 100, 0, 3.15);
+  TH2D *deltaMap[10];
+  for(int i =0; i < 10; ++i)
+  {
+    deltaMap[i] = new TH2D(Form("deltamap%i",i),";#Delta #eta;#Delta #phi",100, 0, 10, 100, 0, 3.15);
+  }
 
   // Make the event-matching map ************
   EventMatchingCMS *matcher = new EventMatchingCMS();
@@ -334,7 +338,11 @@ void makeTurnOn(TString inL1FileName, TString inHiForestFileName, TString outFil
       fPt[2]->Fill(maxfpt);
 
     corr->Fill(maxfpt,maxl1pt);
-    deltaMap->Fill(TMath::Abs(maxl1eta-maxfeta), TMath::ACos(TMath::Cos(maxl1phi - maxfphi)));
+    for(int i =0; i<10; i++)
+    {
+      if(maxfpt > i*10)
+	deltaMap[i]->Fill(TMath::Abs(maxl1eta-maxfeta), TMath::ACos(TMath::Cos(maxl1phi - maxfphi)));
+    }
 
     for(int i = 0; i < THRESHOLDS; ++i)
     {
@@ -368,7 +376,10 @@ void makeTurnOn(TString inL1FileName, TString inHiForestFileName, TString outFil
   fPt[1]->Write();
   fPt[2]->Write();
   corr->Write();
-  deltaMap->Write();
+  for(int i = 0; i < 10; i++)
+  {
+    deltaMap[i]->Write();
+  }
   for(int k = 0; k < THRESHOLDS; ++k){
     for(int l = 0; l < 3; ++l)
     {
