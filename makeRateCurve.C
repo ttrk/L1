@@ -12,7 +12,7 @@ void makeRateCurve(TString inFileName = "Hydjet502_JetResults.root", bool second
   TH1::SetDefaultSumw2();
 
   const int MAXJETS = 8;
-  const int nBins = 300;
+  const int nBins = 600;
   const int maxPt = 300; // make sure that maxPt/nBins = 4.
 
   TFile *inFile = TFile::Open(inFileName);

@@ -19,7 +19,7 @@ using namespace std;
 
 #define BIN_NUM 40;
 const int MAXJETS = 8;
-const int nBins = 300;
+const int nBins = 600;
 const int maxPt = 300; // make sure that maxPt/nBins = 4.
 
 
@@ -130,7 +130,7 @@ void findthes(TString inFileName = "Hydjet502_JetResults_zeroWalls.root",TString
   }
 
   const int Nthresholds=11;
-  double offlinethresholds[Nthresholds]={26.5,34.5,42.5,50.5,62.5,74.5,86.5,98.5,109.5,122.5,130.5};
+  double offlinethresholds[Nthresholds]={26.75,34.75,42.75,50.75,62.75,74.75,86.75,98.75,109.75,122.75,130.25};
   int L1thresholds[Nthresholds]={-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1};
   double rates[Nthresholds]={-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1};
 
@@ -138,7 +138,7 @@ void findthes(TString inFileName = "Hydjet502_JetResults_zeroWalls.root",TString
   for(int m=0; m<Nthresholds;m++){
     L1thresholds[m]=find(infn, offlinethresholds[m], 1.,centrality);
     std::cout<<"threshold"<<L1thresholds[m]<<std::endl;
-    rates[m]=rate->GetBinContent(int(L1thresholds[m])+1)*30000;
+    rates[m]=rate->GetBinContent(int(L1thresholds[m]*2)+1)*30000;
     cout<<"rate="<<rates[m]<<std::endl;
   }  
    TCanvas* c1 = new TCanvas("c1","A Simple Graph with assymetric error bars",200,10,700,500);

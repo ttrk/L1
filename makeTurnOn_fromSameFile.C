@@ -109,7 +109,7 @@ void makeTurnOn(TString inL1Name, TString inHiForestFileName, TString outFileNam
     f1Tree->SetBranchAddress("genphi",genphi);
   }
 
-  const int nBins = 300;
+  const int nBins = 600;
   const double maxPt = 300;
 
   TH1D *l1Pt = new TH1D("l1Pt",";L1 p_{T} (GeV)",nBins,0,maxPt);
