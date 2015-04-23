@@ -23,7 +23,7 @@ const int nBins = 600;
 const int maxPt = 300; // make sure that maxPt/nBins = 4.
 
 
-int find(TString infname, Double_t pTthes, Double_t effthes, int cent)
+double find(TString infname, Double_t pTthes, Double_t effthes, int cent)
 {
   TFile* inf = new TFile(infname);
   int i=0,j=0;
@@ -84,7 +84,7 @@ int find(TString infname, Double_t pTthes, Double_t effthes, int cent)
       //cout<<">>>> File <"<<infname<<"> has the thredshold <"<<ingname<<"> for "<<effthes*100<<"% at "<<pTthes<<" GeV/c"<<endl;
       //cout<<">>>> RESULT ENDS"<<endl;
       //cout<<endl;
-      return i;
+      return i/2;
     }
   
 }
@@ -131,7 +131,7 @@ void findthes(TString inFileName = "Hydjet502_JetResults_zeroWalls.root",TString
 
   const int Nthresholds=11;
   double offlinethresholds[Nthresholds]={26.25,34.25,42.25,50.25,62.25,74.25,86.25,97.75,109.75,122.75,130.25};
-  int L1thresholds[Nthresholds]={-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1};
+  double L1thresholds[Nthresholds]={-1.,-1.,-1.,-1.,-1.,-1.,-1.,-1.,-1.,-1.,-1.};
   double rates[Nthresholds]={-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1};
 
   
