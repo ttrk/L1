@@ -346,7 +346,7 @@ void makeTurnOn(TString inL1FileName, TString inHiForestFileName, TString outFil
 
     for(int i = 0; i < THRESHOLDS; ++i)
     {
-      if(maxl1pt> i)
+      if(maxl1pt >= i)
       {
 	accepted[i][0]->Fill(maxfpt);
 	if(hiBin < 60)
