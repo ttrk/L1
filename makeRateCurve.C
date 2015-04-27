@@ -6,7 +6,7 @@
 
 #include <iostream>
 
-void makeRateCurve(TString inFileName = "Hydjet502_JetResults.root", bool secondaryFile = false)
+void makeRateCurve(TString inFileName = "Hydjet502_JetResults.root")
 {
   std::cout << "Analyzing " << inFileName << std::endl;
   TH1::SetDefaultSumw2();
@@ -17,10 +17,7 @@ void makeRateCurve(TString inFileName = "Hydjet502_JetResults.root", bool second
 
   TFile *inFile = TFile::Open(inFileName);
   TTree *inTree;
-  if(secondaryFile)
-    inTree = (TTree*)inFile->Get("L1UpgradeTree");
-  else
-    inTree = (TTree*)inFile->Get("L1UpgradeAnalyzer/L1UpgradeTree");
+  inTree = (TTree*)inFile->Get("L1UpgradeTree");
 
   Int_t l1_pt[MAXJETS];
   inTree->SetBranchAddress("jet_pt",l1_pt);
@@ -40,10 +37,6 @@ void makeRateCurve(TString inFileName = "Hydjet502_JetResults.root", bool second
     counts->Fill(maxl1pt);
   }
 
-  //TCanvas *c0 = new TCanvas();
-  //counts->Draw("e");
-  //c0->SetLogy();
-
   TH1D *rate;
   rate = new TH1D("rate",";L1 p_{T};Rate",nBins,0,maxPt);
   double total_integral = counts->Integral();
@@ -58,9 +51,8 @@ void makeRateCurve(TString inFileName = "Hydjet502_JetResults.root", bool second
     std::cout << integral/total_integral*30000 << std::endl;
   }
 
-  //TCanvas *c1 = new TCanvas();
-  //rate->Draw("hist");
-  //c1->SetLogy();
+  delete counts;
+  delete rate;
 }
 
 int main(int argc, char **argv)
@@ -73,10 +65,6 @@ int main(int argc, char **argv)
   {
     makeRateCurve(argv[1]);
     return 0;
-  }
-  else if ( argc == 3 )
-  {
-    makeRateCurve(argv[1], atoi(argv[2]));
   }
   else
   {

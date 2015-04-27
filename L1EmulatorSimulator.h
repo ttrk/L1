@@ -376,8 +376,13 @@ namespace L1EmulatorSimulator {
       }
       int regionEta = region[i].eta;
       int regionPhi = region[i].phi;
+      int neighborN_et = 0;
       int neighborS_et = 0;
       int neighborE_et = 0;
+      int neighborW_et = 0;
+      int neighborNE_et = 0;
+      int neighborSW_et = 0;
+      int neighborNW_et = 0;
       int neighborSE_et = 0;
       unsigned int nNeighbors = 0;
       for(int j = 0; j < 396; j++) {
@@ -389,8 +394,14 @@ namespace L1EmulatorSimulator {
 	}
 	int neighborEta = region[j].eta;
 	int neighborPhi = region[j].phi;
-	if(deltaGctPhi(regionPhi, neighborPhi) == -1 &&
-	   (regionEta    ) == neighborEta) {
+	if(deltaGctPhi(regionPhi, neighborPhi) == 1 &&
+	   (regionEta ) == neighborEta) {
+	  neighborN_et = neighborET;
+	  nNeighbors++;
+	  continue;
+	}
+	else if(deltaGctPhi(regionPhi, neighborPhi) == -1 &&
+		(regionEta    ) == neighborEta) {
 	  neighborS_et = neighborET;
 	  nNeighbors++;
 	  continue;
@@ -401,6 +412,30 @@ namespace L1EmulatorSimulator {
 	  nNeighbors++;
 	  continue;
 	}
+	else if(deltaGctPhi(regionPhi, neighborPhi) == 0 &&
+		(regionEta - 1) == neighborEta) {
+	  neighborW_et = neighborET;
+	  nNeighbors++;
+	  continue;
+	}
+	else if(deltaGctPhi(regionPhi, neighborPhi) == 1 &&
+		(regionEta + 1) == neighborEta) {
+	  neighborNE_et = neighborET;
+	  nNeighbors++;
+	  continue;
+	}
+	else if(deltaGctPhi(regionPhi, neighborPhi) == -1 &&
+		(regionEta - 1) == neighborEta) {
+	  neighborSW_et = neighborET;
+	  nNeighbors++;
+	  continue;
+	}
+	else if(deltaGctPhi(regionPhi, neighborPhi) == 1 &&
+		(regionEta - 1) == neighborEta) {
+	  neighborNW_et = neighborET;
+	  nNeighbors++;
+	  continue;
+	}
 	else if(deltaGctPhi(regionPhi, neighborPhi) == -1 &&
 		(regionEta + 1) == neighborEta) {
 	  neighborSE_et = neighborET;
@@ -408,24 +443,36 @@ namespace L1EmulatorSimulator {
 	  continue;
 	}
       }
+      // require that the "center" of the 2x2 still be a local maxima in 3x3
+      // this should prevent overlaps between 2x2 jets
+      if(regionET > neighborN_et &&
+	 regionET > neighborNW_et &&
+	 regionET > neighborW_et &&
+	 regionET > neighborSW_et &&
+	 regionET >= neighborNE_et &&
+	 regionET >= neighborE_et &&
+	 regionET >= neighborSE_et &&
+	 regionET >= neighborS_et) {
 
-      unsigned int jetET = regionET +
-	neighborS_et + neighborE_et + neighborSE_et;
 
-      int jetPhi = regionPhi;
-      int jetEta = regionEta;
+	unsigned int jetET = regionET +
+	  neighborS_et + neighborE_et + neighborSE_et;
 
-      cand theJet;
-      theJet.pt = jetET / 8; // factor of 8 comes from hardware scale change
-      theJet.eta = jetEta;
-      theJet.phi = jetPhi;
+	int jetPhi = regionPhi;
+	int jetEta = regionEta;
 
-      const bool forward = (jetEta < 4 || jetEta > 17);
+	cand theJet;
+	theJet.pt = jetET / 8; // factor of 8 comes from hardware scale change
+	theJet.eta = jetEta;
+	theJet.phi = jetPhi;
 
-      if(forward)
-	forjets.push_back(theJet);
-      else
-	cenjets.push_back(theJet);
+	const bool forward = (jetEta < 4 || jetEta > 17);
+
+	if(forward)
+	  forjets.push_back(theJet);
+	else
+	  cenjets.push_back(theJet);
+      }
     }
 
 

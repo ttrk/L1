@@ -33,7 +33,7 @@ g++ makeTurnOn_fromSameFile.C $(root-config --cflags --libs) -Werror -Wall -Wext
 g++ plotTurnOn.C $(root-config --cflags --libs) -Werror -Wall -Wextra -O2 -o plotTurnOn.exe || exit 1
 
 
-for sampleNum in 2
+for sampleNum in 0 1 2 3
 do
     for algo in 0 1 2 3 4 5 6 7 8 9 10
     do
@@ -41,13 +41,16 @@ do
 	HistOutput="hist_${InputType[sampleNum]}_${AlgoVariations[algo]}.root"
 	PlotOutputTag="${InputType[sampleNum]}_${AlgoVariations[algo]}"
 	./L1JetEmulator.exe "${InputL1[sampleNum]}" "$L1Output" $algo || exit 1
-	./makeRateCurve.exe "$L1Output" 1 || exit 1
-	if [[ $sampleNum -eq 0 ]] || [[ $sampleNum -eq 1 ]]
+	./makeRateCurve.exe "$L1Output" || exit 1
+	if [[ $sampleNum -eq 0 ]] ||
 	then
-	   ./makeTurnOn.exe "$L1Output" "${InputHiForest[sampleNum]}" "$HistOutput" || exit 1
-	elif [[ $sampleNum -eq 2 ]]
+	    ./makeTurnOn.exe "$L1Output" "${InputHiForest[sampleNum]}" "$HistOutput" 0 0 || exit 1
+	elif [[ $sampleNum -eq 1 ]]
 	then
-	   ./makeTurnOn_fromSameFile.exe "$L1Output" "${InputHiForest[sampleNum]}" "$HistOutput" || exit 1
+	    ./makeTurnOn.exe "$L1Output" "${InputHiForest[sampleNum]}" "$HistOutput" 1 0 || exit 1
+	elif [[ $sampleNum -eq 2 ]] || [[ $sampleNum -eq 3 ]]
+	then
+	   ./makeTurnOn_fromSameFile.exe "$L1Output" "${InputHiForest[sampleNum]}" "$HistOutput" 1 0 || exit 1
 	fi
 	./plotTurnOn.exe "$HistOutput" "$PlotOutputTag" || exit 1
     done
