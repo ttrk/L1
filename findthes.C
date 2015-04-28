@@ -126,20 +126,19 @@ void findthes(TString inFileName = "Hydjet502_JetResults_zeroWalls.root",TString
     double j = (double)i*(double)maxPt/(double)nBins;
     double integral = counts->Integral(i+1, nBins);
     rate->Fill(j, (double)integral/total_integral);
-    std::cout << "L1_SingleJet" << j << "\t" << integral/total_integral*30000 << std::endl;
+    //std::cout << "L1_SingleJet" << j << "\t" << integral/total_integral*30000 << std::endl;
   }
 
   const int Nthresholds=11;
-  double offlinethresholds[Nthresholds]={26.25,34.25,42.25,50.25,62.25,74.25,86.25,97.75,109.75,122.75,130.25};
+  double offlinethresholds[Nthresholds]={30.25,40.25,50.25,60.25,70.25,80.25,90.25,100.75,120.75,130.25,140.75};
   double L1thresholds[Nthresholds]={-1.,-1.,-1.,-1.,-1.,-1.,-1.,-1.,-1.,-1.,-1.};
   double rates[Nthresholds]={-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1};
 
   
   for(int m=0; m<Nthresholds;m++){
     L1thresholds[m]=find(infn, offlinethresholds[m], 1.,centrality);
-    std::cout<<"threshold"<<L1thresholds[m]<<std::endl;
     rates[m]=rate->GetBinContent(int(L1thresholds[m]*2)+1)*30000;
-    cout<<"rate="<<rates[m]<<std::endl;
+    std::cout<<"offline threshold="<<offlinethresholds[m]<<", L1 threshold="<<L1thresholds[m]<<", rate="<<rates[m]<<std::endl;
   }  
    TCanvas* c1 = new TCanvas("c1","A Simple Graph with assymetric error bars",200,10,700,500);
    c1->SetFillColor(42);
