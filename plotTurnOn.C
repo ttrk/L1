@@ -16,10 +16,10 @@ void plotTurnOn(TString inFileName, TString outFileTag)
   TGraphAsymmErrors *asymm[THRESHOLDS];//[2];
 
   for(int i = 0; i < THRESHOLDS; i++)
-  { 
+  {
     //for(int j = 0; j < 2; j++)
-    { 
-      asymm[i] = (TGraphAsymmErrors*)inFile->Get(Form("asymm_pt_%.1f_0",L1_THRESHOLD[i]));
+    {
+      asymm[i] = (TGraphAsymmErrors*)inFile->Get(Form("asymm_pt_%d_0",L1_THRESHOLD[i]));
       asymm[i]->SetMarkerColor(COLORS[i]);
       asymm[i]->SetLineColor(COLORS[i]);
     }
@@ -27,7 +27,7 @@ void plotTurnOn(TString inFileName, TString outFileTag)
   }
 
   // these values MUST MATCH those used in makeTurnOn.C
-  const int nBins = 600;
+  const int nBins = 150;
   const double maxPt = 300;
 
   TH1D *hEmpty = new TH1D("hEmpty",Form(";Jet p_{T} (GeV);Efficiency"),nBins,0,maxPt);

@@ -6,23 +6,20 @@
 
 #include <iostream>
 
-void makeRateCurve(TString inFileName = "Hydjet502_JetResults.root", bool secondaryFile = false)
+void makeRateCurve(TString inFileName = "Hydjet502_JetResults.root")
 {
   std::cout << "Analyzing " << inFileName << std::endl;
   TH1::SetDefaultSumw2();
 
   const int MAXJETS = 8;
-  const int nBins = 600;
-  const int maxPt = 300; // make sure that maxPt/nBins = 4.
+  const int nBins = 128;
+  const int maxPt = 256; // make sure that maxPt/nBins = 2.
 
   TFile *inFile = TFile::Open(inFileName);
   TTree *inTree;
-  if(secondaryFile)
-    inTree = (TTree*)inFile->Get("L1UpgradeTree");
-  else
-    inTree = (TTree*)inFile->Get("L1UpgradeAnalyzer/L1UpgradeTree");
+  inTree = (TTree*)inFile->Get("L1UpgradeTree");
 
-  Float_t l1_pt[MAXJETS];
+  Int_t l1_pt[MAXJETS];
   inTree->SetBranchAddress("jet_pt",l1_pt);
 
   TH1D *counts = new TH1D("counts","counts;Leading L1 Jet p_{T};Count",nBins,0,maxPt);
@@ -40,10 +37,6 @@ void makeRateCurve(TString inFileName = "Hydjet502_JetResults.root", bool second
     counts->Fill(maxl1pt);
   }
 
-  //TCanvas *c0 = new TCanvas();
-  //counts->Draw("e");
-  //c0->SetLogy();
-
   TH1D *rate;
   rate = new TH1D("rate",";L1 p_{T};Rate",nBins,0,maxPt);
   double total_integral = counts->Integral();
@@ -54,13 +47,12 @@ void makeRateCurve(TString inFileName = "Hydjet502_JetResults.root", bool second
     double j = (double)i*(double)maxPt/(double)nBins;
     double integral = counts->Integral(i+1, nBins);
     rate->Fill(j, (double)integral/total_integral);
-    std::cout << "L1_SingleJet" << j << "\t" << integral/total_integral*30000 << std::endl;
+    std::cout << "L1_SingleJet" << j << " " << integral/total_integral*30000 << std::endl;
     //std::cout << integral/total_integral*30000 << std::endl;
   }
 
-  //TCanvas *c1 = new TCanvas();
-  //rate->Draw("hist");
-  //c1->SetLogy();
+  delete counts;
+  delete rate;
 }
 
 int main(int argc, char **argv)
@@ -73,10 +65,6 @@ int main(int argc, char **argv)
   {
     makeRateCurve(argv[1]);
     return 0;
-  }
-  else if ( argc == 3 )
-  {
-    makeRateCurve(argv[1], atoi(argv[2]));
   }
   else
   {

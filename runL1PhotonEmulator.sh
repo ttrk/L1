@@ -11,7 +11,7 @@ set -x
   # };
 
 
-InputHiForest=("/mnt/hadoop/cms/store/user/luck/L1Emulator/HydjetMB_502TeV_740pre8_MCHI2_74_V3_HiForestAndEmulator_v5.root" "/mnt/hadoop/cms/store/user/luck/L1Emulator/AllQCDPhoton30_PhotonFilter20GeV_eta3_TuneZ2_PbPb_5020GeV_actuallyEmbedded_HiForest.root")
+InputHiForest=("/mnt/hadoop/cms/store/user/luck/L1Emulator/HydjetMB_502TeV_740pre8_MCHI2_74_V3_rctconfigNoCuts_HiForestAndEmulatorAndHLT_v7.root" "/mnt/hadoop/cms/store/user/luck/L1Emulator/AllQCDPhoton30_PhotonFilter20GeV_eta3_TuneZ2_PbPb_5020GeV_embedded_rctconfigNoCuts_HiForest.root")
 
 SampleType=(Hydjet502 Photon502)
 

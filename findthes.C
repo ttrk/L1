@@ -19,8 +19,8 @@ using namespace std;
 
 #define BIN_NUM 40;
 const int MAXJETS = 8;
-const int nBins = 600;
-const int maxPt = 300; // make sure that maxPt/nBins = 4.
+const int nBins = 150;
+const int maxPt = 300; // make sure that maxPt/nBins = 2.
 
 
 double find(TString infname, Double_t pTthes, Double_t effthes, int cent)
@@ -29,9 +29,9 @@ double find(TString infname, Double_t pTthes, Double_t effthes, int cent)
   int i=0,j=0;
   Bool_t flag=false;
   TString ingname;
-  for(i=199;i>=0;i-=1)
+  for(i=99;i>=0;i-=1)
     {
-      ingname = Form("asymm_pt_%.1f_%d",i*0.5,cent);
+      ingname = Form("asymm_pt_%d_%d",i*2,cent);
       TGraphAsymmErrors* ga = (TGraphAsymmErrors*)inf->Get(ingname);
       if(!ga) break;
       Double_t vx,vy,interx,intermin=1000000.;
@@ -84,9 +84,9 @@ double find(TString infname, Double_t pTthes, Double_t effthes, int cent)
       //cout<<">>>> File <"<<infname<<"> has the thredshold <"<<ingname<<"> for "<<effthes*100<<"% at "<<pTthes<<" GeV/c"<<endl;
       //cout<<">>>> RESULT ENDS"<<endl;
       //cout<<endl;
-      return double(i)/2.;
+      return i*2;
     }
-  
+
 }
 
 
@@ -98,7 +98,7 @@ void findthes(TString inFileName = "Hydjet502_JetResults_zeroWalls.root",TString
   TTree *inTree;
   inTree = (TTree*)inFile->Get("L1UpgradeTree");
 
-  Float_t l1_pt[MAXJETS];
+  Int_t l1_pt[MAXJETS];
   inTree->SetBranchAddress("jet_pt",l1_pt);
 
   TH1D *counts = new TH1D("counts","counts;Leading L1 Jet p_{T};Count",nBins,0,maxPt);
@@ -115,7 +115,7 @@ void findthes(TString inFileName = "Hydjet502_JetResults_zeroWalls.root",TString
 
     counts->Fill(maxl1pt);
   }
-  
+
   TH1D *rate;
   rate = new TH1D("rate",";L1 p_{T};Rate",nBins,0,maxPt);
   double total_integral = counts->Integral();
@@ -134,35 +134,35 @@ void findthes(TString inFileName = "Hydjet502_JetResults_zeroWalls.root",TString
   double L1thresholds[Nthresholds]={-1.,-1.,-1.,-1.,-1.,-1.,-1.,-1.,-1.,-1.,-1.};
   double rates[Nthresholds]={-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1};
 
-  
+
   for(int m=0; m<Nthresholds;m++){
     L1thresholds[m]=find(infn, offlinethresholds[m], 1.,centrality);
-    rates[m]=rate->GetBinContent(int(L1thresholds[m]*2)+1)*30000;
+    rates[m]=rate->GetBinContent(int(L1thresholds[m]/2)+1)*30000;
     std::cout<<"offline threshold="<<offlinethresholds[m]<<", L1 threshold="<<L1thresholds[m]<<", rate="<<rates[m]<<std::endl;
-  }  
+  }
    TCanvas* c1 = new TCanvas("c1","A Simple Graph with assymetric error bars",200,10,700,500);
    c1->SetFillColor(42);
    c1->SetGrid();
    c1->GetFrame()->SetFillColor(21);
    c1->GetFrame()->SetBorderSize(12);
-   
+
    Double_t exl[Nthresholds] ={0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.};
    Double_t eyl[Nthresholds] ={0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.};
    Double_t exh[Nthresholds] ={0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.};
    Double_t eyh[Nthresholds] ={0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.};
-   
+
    TGraphAsymmErrors *gr = new TGraphAsymmErrors(Nthresholds,offlinethresholds,rates,exl,exh,eyl,eyh);
    gr->SetTitle("TGraphAsymmErrors Example");
    gr->SetMarkerColor(4);
    gr->SetMarkerStyle(21);
    gr->Draw("ALP");
-   
+
    TFile*foutput=new TFile(Form("%s_cent%d.root",outfile.Data(),centrality),"recreate");
    foutput->cd();
    gr->Write();
    foutput->Close();
-   
-  
+
+
 }
 
 int main(int argc, char **argv)

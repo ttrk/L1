@@ -34,8 +34,7 @@ void L1JetEmulator(TString l1_input = "/export/d00/scratch/luck/HydjetMB_740pre8
 
   Int_t region_hwPt_[396], region_hwPhi_[396], region_hwEta_[396];
   Int_t subregion_hwPt[396], subregion_hwPhi[396], subregion_hwEta[396];
-  Int_t jet_hwPt[8], jet_hwEta[8], jet_hwPhi[8];
-  Float_t jet_pt[8];
+  Int_t jet_hwPt[8], jet_hwEta[8], jet_hwPhi[8], jet_pt[8];
 
   outTree->Branch("run",&run,"run/I");
   outTree->Branch("lumi",&lumi,"lumi/I");
@@ -49,7 +48,7 @@ void L1JetEmulator(TString l1_input = "/export/d00/scratch/luck/HydjetMB_740pre8
   outTree->Branch("subregion_hwEta",subregion_hwEta,"subregion_hwEta[396]/I");
 
   outTree->Branch("jet_hwPt",jet_hwPt,"jet_hwPt[8]/I");
-  outTree->Branch("jet_pt",jet_pt,"jet_pt[8]/F");
+  outTree->Branch("jet_pt",jet_pt,"jet_pt[8]/I");
   outTree->Branch("jet_hwPhi",jet_hwPhi,"jet_hwPhi[8]/I");
   outTree->Branch("jet_hwEta",jet_hwEta,"jet_hwEta[8]/I");
 
@@ -115,7 +114,7 @@ void L1JetEmulator(TString l1_input = "/export/d00/scratch/luck/HydjetMB_740pre8
     for(int i = 0; i < 8; i++)
     {
       jet_hwPt[i] = outJets[i].pt;
-      jet_pt[i] = outJets[i].pt * 0.5;
+      jet_pt[i] = outJets[i].pt * 2;
       jet_hwEta[i] = outJets[i].eta;
       jet_hwPhi[i] = outJets[i].phi;
     }
