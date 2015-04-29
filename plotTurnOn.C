@@ -19,7 +19,7 @@ void plotTurnOn(TString inFileName, TString outFileTag)
   {
     //for(int j = 0; j < 2; j++)
     {
-      asymm[i] = (TGraphAsymmErrors*)inFile->Get(Form("asymm_pt_%d_0",L1_THRESHOLD[i]));
+      asymm[i] = (TGraphAsymmErrors*)inFile->Get(Form("asymm_pt_%d_0",(int)L1_THRESHOLD[i]));
       asymm[i]->SetMarkerColor(COLORS[i]);
       asymm[i]->SetLineColor(COLORS[i]);
     }

@@ -120,7 +120,7 @@ void makeTurnOn(TString inL1Name, TString inHiForestFileName, TString outFileNam
   {
     for(int j = 0; j < 3; ++j)
     {
-      accepted[i][j] = new TH1D(Form("accepted_pt%.1f_%d",(i*2),j),";offline p_{T}",nBins,0,maxPt);
+      accepted[i][j] = new TH1D(Form("accepted_pt%.1f_%d",double((i*2)),j),";offline p_{T}",nBins,0,maxPt);
     }
   }
 
