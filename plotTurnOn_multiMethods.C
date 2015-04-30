@@ -45,22 +45,39 @@ void plotTurnOn()
   // const Double_t L1_THRESHOLD[INPUTFILES] = {40, 24, 20, 32};
 
 
-  TString outFileTag = "Hydjet502_200Hz";
-  TString inFileName[INPUTFILES] = {"hist_Hydjet502_zeroWalls.root",
-  				    "hist_Hydjet502_sigmaSubtraction.root",
-  				    "hist_Hydjet502_oneByOneAndzeroWalls.root",
-  				    "hist_Hydjet502_twoByTwoANDzeroWalls.root"
-  };
+  // TString outFileTag = "Hydjet502_200Hz";
+  // TString inFileName[INPUTFILES] = {"hist_Hydjet502_zeroWalls.root",
+  // 				    "hist_Hydjet502_sigmaSubtraction.root",
+  // 				    "hist_Hydjet502_oneByOneAndzeroWalls.root",
+  // 				    "hist_Hydjet502_twoByTwoANDzeroWalls.root"
+  // };
   // // TString labels[INPUTFILES] = {"zeroWalls, L1_80, 150Hz",
   // // 				"sigma subtracted, L1_36, 163Hz",
   // // 				"1x1 jets, L1_36, 167Hz",
   // // 				"2x2 jets, L1_88, 155Hz"};
   // // const Double_t L1_THRESHOLD[INPUTFILES] = {80, 36, 36, 64};
-  TString labels[INPUTFILES] = {"zeroWalls, L1_56, 164Hz",
-  				"sigma subtracted, L1_36, 162Hz",
-  				"1x1 jets +ZW, L1_28, 154Hz",
-  				"2x2 jets +ZW, L1_44, 195Hz"};
-  const Double_t L1_THRESHOLD[INPUTFILES] = {56, 36, 28, 44};
+
+  // TString outFileTag = "Photon502_60GeV";
+  // TString inFileName[INPUTFILES] = {"hist_Photon502_isophoton_regions.root",
+  // 				    "hist_Photon502_isophotons_eta1.44_2x2jets.root",
+  // 				    "hist_Photon502_isophotons_eta1.44_3x3jets.root",
+  // 				    "hist_Photon502_isophotons_noHoEorFG_emcands.root"};
+  // TString labels[INPUTFILES] = {"Single Regions 50GeV, |#eta| < 1.74",
+  // 				"2x2 Jets 48GeV, |#eta| < 1.74",
+  // 				"3x3 Jets 48GeV, |#eta| < 1.74",
+  // 				"EG cands 50GeV"};
+  // const Double_t L1_THRESHOLD[INPUTFILES] = {50, 48, 48,50};
+
+  TString outFileTag = "Photon502_40GeV";
+  TString inFileName[INPUTFILES] = {"hist_Photon502_isophoton_regions.root",
+  				    "hist_Photon502_isophotons_eta1.44_2x2jets.root",
+  				    "hist_Photon502_isophotons_eta1.44_3x3jets.root",
+				    "hist_Photon502_isophotons_noHoEorFG_emcands.root"};
+  TString labels[INPUTFILES] = {"Single Regions 20GeV, |#eta| < 1.74",
+  				"2x2 Jets 24GeV, |#eta| < 1.74",
+  				"3x3 Jets 28GeV, |#eta| < 1.74",
+  				"EG cands 32GeV"};
+  const Double_t L1_THRESHOLD[INPUTFILES] = {20, 24, 28,32};
 
   TFile *inFile[INPUTFILES];
   const Int_t COLORS[INPUTFILES] = {kBlack, kRed, kBlue, kGreen+3};//, kMagenta+3};
@@ -80,9 +97,9 @@ void plotTurnOn()
 
   // these values MUST MATCH those used in makeTurnOn.C
   const int nBins = 75;
-  const double maxPt = 300;
+  const double maxPt = 200;
 
-  TH1D *hEmpty = new TH1D("hEmpty",Form(";Jet p_{T} (GeV);Efficiency"),nBins,0,maxPt);
+  TH1D *hEmpty = new TH1D("hEmpty",Form(";Isolated Photon p_{T} (GeV);Efficiency"),nBins,0,maxPt);
 
   TCanvas *c1 = new TCanvas();
   hEmpty->SetMinimum(0);
@@ -101,7 +118,7 @@ void plotTurnOn()
     }
   }
 
-  TLegend *leg = new TLegend(0.55,0.2,0.9,0.5,"|#eta| < 2");
+  TLegend *leg = new TLegend(0.55,0.2,0.9,0.5,"|#eta| < 1.44");
   leg->SetFillColor(0);
   leg->SetTextFont(42);
   leg->SetTextSizePixels(18);
@@ -120,17 +137,8 @@ void plotTurnOn()
 
 }
 
-int main(int argc, char **argv)
+int main()
 {
-  if(argc == 1)
-  {
-    plotTurnOn();
-    return 0;
-  }
-  else
-  {
-    std::cout << "Usage:\nplotTurnOn_multiMethods.exe <output_tag>" << std::cout;
-    std::cout << "An output pdf will be named <output_tag>_turnon.pdf" << std::cout;
-    return 1;
-  }
+  plotTurnOn();
+  return 0;
 }

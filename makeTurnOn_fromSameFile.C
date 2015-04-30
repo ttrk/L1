@@ -190,12 +190,12 @@ void makeTurnOn(TString inL1Name, TString inHiForestFileName, TString outFileNam
 
     corr->Fill(maxfpt,maxl1pt);
 
-    if((maxfpt > 65) && (maxl1pt < 25))
-      std::cout << "Event: " << l1_event << " Lumi: " << l1_lumi << " Run: " << l1_run << std::endl;
+    // if((maxfpt > 65) && (maxl1pt < 25))
+    //   std::cout << "Event: " << l1_event << " Lumi: " << l1_lumi << " Run: " << l1_run << std::endl;
 
     for(int i = 0; i < THRESHOLDS; ++i)
     {
-      if(maxl1pt>L1_THRESHOLD[i])
+      if(maxl1pt>=L1_THRESHOLD[i])
       {
 	accepted[i][0]->Fill(maxfpt);
 	if(hiBin < 60)

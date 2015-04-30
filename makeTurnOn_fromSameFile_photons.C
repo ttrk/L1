@@ -401,7 +401,7 @@ void makeTurnOn(TString inHiForestFileName, TString outFileName, seedObject seed
 
     for(int i = 0; i < THRESHOLDS; ++i)
     {
-      if(maxl1pt> i)
+      if(maxl1pt >= i)
       {
 	accepted[i][0]->Fill(maxfpt);
 	if(hiBin < 60)
