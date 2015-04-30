@@ -19,25 +19,28 @@ set -x
   #10  twoByTwoANDzeroWallsANDsigmaSubtraction
   # };
 
-InputType=(MBData Hydjet276 Hydjet502 Hydjet502Dijet30)
+InputType=(MBData Hydjet276 Hydjet502 Hydjet502Dijet30 Hydjet502Dijet80)
 
 AlgoVariations=(nominal zeroWalls doubleSubtraction sigmaSubtraction barrelOnly oneByOne twoByTwo oneByOneAndzeroWalls oneByOneANDzeroWallsANDsigmaSubtraction twoByTwoANDzeroWalls twoByTwoANDzeroWallsANDsigmaSubtraction)
 
 # compile the macros with g++
 g++ findthes.C $(root-config --cflags --libs) -Werror -Wall -Wextra -O2 -o findthes.exe || exit 1
 
+outDirectory="/export/d00/scratch/tatar/output/out_L1EmulatorMacros_vFinerBin";
 
-for sampleNum in 2
+for sampleNum in 4
 do
-    for algo in 0 1 2 3 4 5 6 7 8 9 10
+    for algo in 10
     do
       for centrality in 0
       do
+	##L1Output="~/scratch/EmulatorResults/${InputType[sampleNum]}_JetResults_${AlgoVariations[algo]}.root"
+	##L1Output="/export/d00/scratch/luck/EmulatorResults/${InputType[sampleNum]}_JetResults_${AlgoVariations[algo]}.root"
+	L1Output=$outDirectory"/""${InputType[sampleNum]}_JetResults_${AlgoVariations[algo]}.root"
+	HistOutput=$outDirectory"/""hist_${InputType[sampleNum]}_${AlgoVariations[algo]}.root"
+	PlotOutputTag=$outDirectory"/""${InputType[sampleNum]}_${AlgoVariations[algo]}"
 
-	  L1Output="~/scratch/EmulatorResults/${InputType[sampleNum]}_JetResults_${AlgoVariations[algo]}.root"
-	  HistOutput="hist_${InputType[sampleNum]}_${AlgoVariations[algo]}.root"
-	  Output="results/filerate_${InputType[sampleNum]}_${AlgoVariations[algo]}"
-	  PlotOutputTag="${InputType[sampleNum]}_${AlgoVariations[algo]}"
+	  Output=$outDirectory"/""filerate_${InputType[sampleNum]}_${AlgoVariations[algo]}"
 	  ./findthes.exe "$L1Output" "$HistOutput" "$Output" $centrality|| exit 1
       done
   done

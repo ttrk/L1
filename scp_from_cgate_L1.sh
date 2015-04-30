@@ -4,7 +4,7 @@
 ## WARNING : cannot copy directly from scratch to local machine
 #http://stackoverflow.com/questions/3598664/creating-a-shell-script-to-run-java-program?rq=1
 remoteMachine="tatar@cgate.mit.edu";
-sourceFolder="out_L1EmulatorMacros_v3";
+sourceFolder="out_L1EmulatorMacros_vFinerBin";
 sourceDir="output/"$sourceFolder;
 sourceFiles="
 ${sourceDir}/*.pdf
