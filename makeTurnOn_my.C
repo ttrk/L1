@@ -17,7 +17,7 @@
 
 const int MAXPHOTONS = 500;
 
-void makeTurnOn_photons(TString inHiForestFileName, TString outFileName, double offlineEtaCut=1.44, bool offlineIso=0)
+void makeTurnOn(TString inHiForestFileName, TString outFileName, double offlineEtaCut=1.44, bool offlineIso=0)
 {
   TFile *inFile = TFile::Open(inHiForestFileName);
   TTree *photonTree = (TTree*)inFile->Get("multiPhotonAnalyzer/photon");
@@ -77,12 +77,12 @@ void makeTurnOn_photons(TString inHiForestFileName, TString outFileName, double 
   TFile* outFile = new TFile(outFileName, "RECREATE");
   outFile->cd();
 
-  const int nBins = 200;
+  const int nBins = 100;
   const double maxPt = 100;
 
   TH1D* allPt      = new TH1D("allPt",";reco p_{T} (GeV)",nBins,0,maxPt);
-  TH1D* allPt_1    = new TH1D("allPt",";reco p_{T} (GeV)",nBins,0,maxPt);
-  TH1D* allPt_2    = new TH1D("allPt",";reco p_{T} (GeV)",nBins,0,maxPt);
+  TH1D* allPt_1    = new TH1D("allPt_1",";reco p_{T} (GeV)",nBins,0,maxPt);
+  TH1D* allPt_2    = new TH1D("allPt_2",";reco p_{T} (GeV)",nBins,0,maxPt);
   TH1D* accepted = new TH1D("accepted",";accepted reco p_{T}",nBins,0,maxPt);
 
 //  photonTree->Draw("pt[0]>>allPt");
@@ -152,8 +152,7 @@ void makeTurnOn_photons(TString inHiForestFileName, TString outFileName, double 
   a->BayesDivide(accepted,allPt);
   a->SetName("asymm_pt");
 
-
-
+  a->Write();
   outFile->Write();
   outFile->Close();
 }
@@ -162,17 +161,17 @@ int main(int argc, char **argv)
 {
   if(argc == 3)
   {
-    makeTurnOn_photons(argv[1], argv[2]);
+    makeTurnOn(argv[1], argv[2]);
     return 0;
   }
   else if(argc == 4)
   {
-    makeTurnOn_photons(argv[1], argv[2], atoi(argv[3]));
+    makeTurnOn(argv[1], argv[2], atoi(argv[3]));
     return 0;
   }
   else if(argc == 5)
   {
-    makeTurnOn_photons(argv[1], argv[2], atof(argv[3]), atoi(argv[4]));
+    makeTurnOn(argv[1], argv[2], atof(argv[3]), atoi(argv[4]));
     return 0;
   }
   else
