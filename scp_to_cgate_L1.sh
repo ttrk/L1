@@ -9,7 +9,7 @@
 # *.sh
 # *.txt
 # ";         # do not copy all sort of files
-sourceFiles="makeTurnOn_vTest.C";
+sourceFiles="makeTurnOn_vIso.C";
 remoteMachine="tatar@cgate.mit.edu";
 destinationInRemote="~/code";
 destination=$remoteMachine":"$destinationInRemote;
