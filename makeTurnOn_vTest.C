@@ -1,3 +1,6 @@
+/*
+ * compare looping over TTree vs. TTree::Draw("some formula");
+ * */
 #include <TFile.h>
 #include <TTree.h>
 #include <TChain.h>
