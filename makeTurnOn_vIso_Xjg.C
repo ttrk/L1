@@ -1,7 +1,13 @@
 /*
-  * turn-on curves for the pPb MC samples.
+ * turn-on curves for the pPb MC samples.
  *      1) turn-on curves for photon pT
  *      2) turn-on curves for sigmaIetaIeta
+
+ * Xjg distributions for different isolation/sideband selections and signal/background regions
+ *      1) isolation selection - signal region
+ *      2) isolation selection - background region
+ *      3) sideband selection - signal region
+ *      4) sideband selection - background region
  *
  * Samples are listed here :
  * https://twiki.cern.ch/twiki/bin/viewauth/CMS/PhotonAnalyses2014#pAWinter13_pPb_pythia_HIJING
@@ -26,16 +32,29 @@
 #include <vector>
 #include <iostream>
 
-const int MAXL1EMCANDS = 144;
-const int MAXL1REGIONS = 396;
-const int MAXL1JETS = 8;
+// cut for signal/background
+const float cut_sigmaIetaIeta = 0.01;
+
+// cuts for jets
+const float cut_jet_pt = 30;
+const float cut_jet_eta = 1.6;
+const float cut_jet_photon_deltaPhi = (7 * TMath::Pi()) / 8 ;   // 7/8 * TMath::Pi() --> evaluates to 0;
+
+//const int MAXL1EMCANDS = 144;
+//const int MAXL1REGIONS = 396;
+//const int MAXL1JETS = 8;
 const int MAXPHOTONS = 500;
+const int MAXJETS = 500;
 const Int_t THRESHOLDS = 1;
 enum process {
     AllQCDPhotons,  //forward
     EmEnrichedDijets    // forward
 };
 const char* processNames[] = {"AllQCDPhotons", "EmEnrichedDijets"};
+
+using namespace std;
+
+Double_t getDPHI( Double_t phi1, Double_t phi2);
 
 void makeTurnOn(process hiForestProcess, TString outFileName, double offlineEtaCut=1.44)
 {
@@ -45,6 +64,7 @@ void makeTurnOn(process hiForestProcess, TString outFileName, double offlineEtaC
     TChain *fEvtTree = new TChain("hiEvtAnalyzer/HiTree","fEvtTree");
     TChain *fSkimTree = new TChain("skimanalysis/HltTree","fSkimTree");
     TChain *hltTree = new TChain("hltanalysis/HltTree","hltTree");
+    TChain *f1JetTree = new TChain("akPu3PFJetAnalyzer/t","f1JetTree");   // must decide on the tree accroding to collision type
 
     const char* processName = processNames[hiForestProcess];
 
@@ -92,6 +112,7 @@ void makeTurnOn(process hiForestProcess, TString outFileName, double offlineEtaC
         fEvtTree->Add(fileNames[i]);
         fSkimTree->Add(fileNames[i]);
         hltTree->Add(fileNames[i]);
+        f1JetTree->Add(fileNames[i]);
     }
     // files are added to the chain.
 
@@ -146,6 +167,16 @@ void makeTurnOn(process hiForestProcess, TString outFileName, double offlineEtaC
     f1Tree->SetBranchAddress("swissCrx",swissCrx);
     f1Tree->SetBranchAddress("seedTime",seedTime);
 
+    Int_t nJet;
+    Float_t jet_pt[MAXJETS];
+    Float_t jet_eta[MAXJETS];
+    Float_t jet_phi[MAXJETS];
+
+    f1JetTree->SetBranchAddress("nref",&nJet);
+    f1JetTree->SetBranchAddress("jtpt",jet_pt);
+    f1JetTree->SetBranchAddress("jteta",jet_eta);
+    f1JetTree->SetBranchAddress("jtphi",jet_phi);
+
     const int nBins = 100;
     const int maxPt = 100;
 
@@ -184,6 +215,31 @@ void makeTurnOn(process hiForestProcess, TString outFileName, double offlineEtaC
     fPtSigma_sideBand[0] = new TH1D("fPtSigma_sideBand_0","sideband;#sigma_{#eta #eta}", 100, 0, 0.1);
     fPtSigma_sideBand[1] = (TH1D*)fPtSigma_sideBand[0]->Clone("fPtSigma_sideBand_1");
     fPtSigma_sideBand[2] = (TH1D*)fPtSigma_sideBand[0]->Clone("fPtSigma_sideBand_2");
+
+    // Xjg distributions
+    // isolation selection - signal region
+    TH1D *fXjg_iso_signal[3];
+    fXjg_iso_signal[0] = new TH1D("fXjg_iso_signal_0","isolation selection - signal;X_{J #gamma}", 100, 0, 2);
+    fXjg_iso_signal[1] = (TH1D*)fPtSigma_sideBand[0]->Clone("fXjg_iso_signal_1");
+    fXjg_iso_signal[2] = (TH1D*)fPtSigma_sideBand[0]->Clone("fXjg_iso_signal_2");
+
+    // isolation selection - background region
+    TH1D *fXjg_iso_bkg[3];
+    fXjg_iso_bkg[0] = new TH1D("fXjg_iso_bkg_0","isolation selection - background;X_{J #gamma}", 100, 0, 2);
+    fXjg_iso_bkg[1] = (TH1D*)fPtSigma_sideBand[0]->Clone("fXjg_iso_bkg_1");
+    fXjg_iso_bkg[2] = (TH1D*)fPtSigma_sideBand[0]->Clone("fXjg_iso_bkg_2");
+
+    // sideband selection - signal region
+    TH1D *fXjg_sideBand_signal[3];
+    fXjg_sideBand_signal[0] = new TH1D("fXjg_sideBand_signal_0","sideband selection - signal;X_{J #gamma}", 100, 0, 2);
+    fXjg_sideBand_signal[1] = (TH1D*)fPtSigma_sideBand[0]->Clone("fXjg_sideBand_signal_1");
+    fXjg_sideBand_signal[2] = (TH1D*)fPtSigma_sideBand[0]->Clone("fXjg_sideBand_signal_2");
+
+    // sideband selection - background region
+    TH1D *fXjg_sideBand_bkg[3];
+    fXjg_sideBand_bkg[0] = new TH1D("fXjg_sideBand_bkg_0","sideband selection - background;X_{J #gamma}", 100, 0, 2);
+    fXjg_sideBand_bkg[1] = (TH1D*)fPtSigma_sideBand[0]->Clone("fXjg_sideBand_bkg_1");
+    fXjg_sideBand_bkg[2] = (TH1D*)fPtSigma_sideBand[0]->Clone("fXjg_sideBand_bkg_2");
 
     // tree names that go like accepted* : events that pass selection and that are triggered
     TH1D *accepted_iso[THRESHOLDS][3];
@@ -233,6 +289,7 @@ void makeTurnOn(process hiForestProcess, TString outFileName, double offlineEtaC
 
         hltTree->GetEntry(j);
         f1Tree->GetEntry(j);
+        f1JetTree->GetEntry(j);
 
         //    double maxfpt = 0;
         //    //double maxfeta = -10;
@@ -244,6 +301,9 @@ void makeTurnOn(process hiForestProcess, TString outFileName, double offlineEtaC
 
         double sigmaietaieta_iso = -1;
         double sigmaietaieta_sideBand = -1;
+
+        int index_maxfpt_iso = -1;
+        int index_maxfpt_sideBand = -1;
 
         for(int i = 0; i < nPhoton; ++i)
         {
@@ -261,6 +321,7 @@ void makeTurnOn(process hiForestProcess, TString outFileName, double offlineEtaC
                     {
                         maxfpt_iso=photon_pt[i];
                         sigmaietaieta_iso = sigmaIetaIeta[i];
+                        index_maxfpt_iso=i;
                     }
                 }
                 // sideband selection
@@ -269,8 +330,104 @@ void makeTurnOn(process hiForestProcess, TString outFileName, double offlineEtaC
                     {
                         maxfpt_sideBand=photon_pt[i];
                         sigmaietaieta_sideBand = sigmaIetaIeta[i];
+                        index_maxfpt_sideBand=i;
                     }
                 }
+            }
+        }
+
+        double maxfpt_jet_iso_signal = 0;   // sigmaIetaIeta < 0.01
+        double maxfpt_jet_iso_bkg = 0;      // sigmaIetaIeta > 0.01
+
+        double Xjg_iso_signal = 0;   // sigmaIetaIeta < 0.01
+        double Xjg_iso_bkg = 0;      // sigmaIetaIeta > 0.01
+
+        // match jets to photons from isolation selection
+        for(int i = 0; i < nJet; ++i)
+        {
+            if(index_maxfpt_iso < 0)
+                break;      // do not loop over jets, no photon was selected
+
+            if(TMath::Abs(jet_eta[i]) < cut_jet_eta)
+            if(TMath::Abs(getDPHI(jet_phi[i],photon_phi[index_maxfpt_iso])) > cut_jet_photon_deltaPhi)
+            if(jet_pt[i] > cut_jet_pt)
+            {
+                // signal region
+                if(jet_pt[i] > maxfpt_jet_iso_signal) {
+                    if(sigmaIetaIeta[index_maxfpt_iso] < cut_sigmaIetaIeta){
+                        maxfpt_jet_iso_signal=jet_pt[i];
+                        Xjg_iso_signal = maxfpt_jet_iso_signal / maxfpt_iso;
+                    }
+                }
+                // background region
+                if (jet_pt[i] > maxfpt_jet_iso_bkg)  {
+                    if(sigmaIetaIeta[index_maxfpt_iso] > cut_sigmaIetaIeta){
+                        maxfpt_jet_iso_bkg=jet_pt[i];
+                        Xjg_iso_bkg = maxfpt_jet_iso_bkg / maxfpt_iso;
+                    }
+                }
+           }
+        }
+
+        // Xjg
+        double maxfpt_jet_sideBand_signal = 0;   // sigmaIetaIeta < 0.01
+        double maxfpt_jet_sideBand_bkg = 0;      // sigmaIetaIeta > 0.01
+
+        double Xjg_sideBand_signal = 0;   // sigmaIetaIeta < 0.01
+        double Xjg_sideBand_bkg = 0;      // sigmaIetaIeta > 0.01
+
+        // match jets to photons from sideBand selection
+        for(int i = 0; i < nJet; ++i)
+        {
+            if(index_maxfpt_sideBand < 0)
+                break;      // do not loop over jets, no photon was selected
+
+            if(TMath::Abs(jet_eta[i]) < cut_jet_eta)
+            if(TMath::Abs(getDPHI(jet_phi[i],photon_phi[index_maxfpt_sideBand])) > cut_jet_photon_deltaPhi)
+            if(jet_pt[i] > cut_jet_pt)
+            {
+                // signal region
+                if(jet_pt[i] > maxfpt_jet_sideBand_signal) {
+                    if(sigmaIetaIeta[index_maxfpt_sideBand] < cut_sigmaIetaIeta){
+                        maxfpt_jet_sideBand_signal=jet_pt[i];
+                        Xjg_iso_bkg = maxfpt_jet_sideBand_signal / maxfpt_sideBand;
+                    }
+                }
+                // background region
+                if (jet_pt[i] > maxfpt_jet_sideBand_bkg)  {
+                    if(sigmaIetaIeta[index_maxfpt_sideBand] > cut_sigmaIetaIeta){
+                        maxfpt_jet_sideBand_bkg=jet_pt[i];
+                        Xjg_iso_bkg = maxfpt_jet_sideBand_bkg / maxfpt_sideBand;
+                    }
+                }
+           }
+        }
+
+        // fill Xjg distributions
+        if(!(index_maxfpt_iso < 0))
+        {
+            fXjg_iso_signal[0]->Fill(Xjg_iso_signal,weight);
+            fXjg_iso_bkg[0]->Fill(Xjg_iso_bkg,weight);
+            if(hiBin < 60){
+                fXjg_iso_signal[1]->Fill(Xjg_iso_signal,weight);
+                fXjg_iso_bkg[1]->Fill(Xjg_iso_bkg,weight);
+            }
+            else if (hiBin >= 100) {
+                fXjg_iso_signal[2]->Fill(Xjg_iso_signal,weight);
+                fXjg_iso_bkg[2]->Fill(Xjg_iso_bkg,weight);
+            }
+        }
+        if(!(index_maxfpt_sideBand < 0))
+        {
+            fXjg_sideBand_signal[0]->Fill(Xjg_sideBand_signal,weight);
+            fXjg_sideBand_bkg[0]->Fill(Xjg_sideBand_bkg,weight);
+            if(hiBin < 60){
+                fXjg_sideBand_signal[1]->Fill(Xjg_sideBand_signal,weight);
+                fXjg_sideBand_bkg[1]->Fill(Xjg_sideBand_bkg,weight);
+            }
+            else if (hiBin >= 100) {
+                fXjg_sideBand_signal[2]->Fill(Xjg_sideBand_signal,weight);
+                fXjg_sideBand_bkg[2]->Fill(Xjg_sideBand_bkg,weight);
             }
         }
 
@@ -466,7 +623,36 @@ void makeTurnOn(process hiForestProcess, TString outFileName, double offlineEtaC
         }
     }
 
+    // write Xjg distributions
+    fXjg_iso_signal[0]->Write();
+    fXjg_iso_signal[1]->Write();
+    fXjg_iso_signal[2]->Write();
+    fXjg_iso_bkg[0]->Write();
+    fXjg_iso_bkg[1]->Write();
+    fXjg_iso_bkg[2]->Write();
+    fXjg_sideBand_signal[0]->Write();
+    fXjg_sideBand_signal[1]->Write();
+    fXjg_sideBand_signal[2]->Write();
+    fXjg_sideBand_bkg[0]->Write();
+    fXjg_sideBand_bkg[1]->Write();
+    fXjg_sideBand_bkg[2]->Write();
+
     outFile->Close();
+}
+
+Double_t getDPHI( Double_t phi1, Double_t phi2) {
+  Double_t dphi = phi1 - phi2;
+
+  if ( dphi > 3.141592653589 )
+    dphi = dphi - 2. * 3.141592653589;
+  if ( dphi <= -3.141592653589 )
+    dphi = dphi + 2. * 3.141592653589;
+
+  if ( TMath::Abs(dphi) > 3.141592653589 ) {
+    cout << " commonUtility::getDPHI error!!! dphi is bigger than 3.141592653589 " << endl;
+  }
+
+  return dphi;
 }
 
 int main(int argc, char **argv)
