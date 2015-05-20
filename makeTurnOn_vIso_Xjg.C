@@ -219,27 +219,31 @@ void makeTurnOn(process hiForestProcess, TString outFileName, double offlineEtaC
     // Xjg distributions
     // isolation selection - signal region
     TH1D *fXjg_iso_signal[3];
-    fXjg_iso_signal[0] = new TH1D("fXjg_iso_signal_0","isolation selection - signal;X_{J #gamma}", 100, 0, 2);
-    fXjg_iso_signal[1] = (TH1D*)fPtSigma_sideBand[0]->Clone("fXjg_iso_signal_1");
-    fXjg_iso_signal[2] = (TH1D*)fPtSigma_sideBand[0]->Clone("fXjg_iso_signal_2");
+    fXjg_iso_signal[0] = new TH1D("fXjg_iso_signal_0",";X_{J #gamma}", 100, 0, 2);
+    fXjg_iso_signal[0]->SetTitle(Form("%s - Xjg - isolation selection in signal region",processName));
+    fXjg_iso_signal[1] = (TH1D*)fXjg_iso_signal[0]->Clone("fXjg_iso_signal_1");
+    fXjg_iso_signal[2] = (TH1D*)fXjg_iso_signal[0]->Clone("fXjg_iso_signal_2");
 
     // isolation selection - background region
     TH1D *fXjg_iso_bkg[3];
-    fXjg_iso_bkg[0] = new TH1D("fXjg_iso_bkg_0","isolation selection - background;X_{J #gamma}", 100, 0, 2);
-    fXjg_iso_bkg[1] = (TH1D*)fPtSigma_sideBand[0]->Clone("fXjg_iso_bkg_1");
-    fXjg_iso_bkg[2] = (TH1D*)fPtSigma_sideBand[0]->Clone("fXjg_iso_bkg_2");
+    fXjg_iso_bkg[0] = new TH1D("fXjg_iso_bkg_0",";X_{J #gamma}", 100, 0, 2);
+    fXjg_iso_bkg[0]->SetTitle(Form("%s - Xjg - isolation selection in background region",processName));
+    fXjg_iso_bkg[1] = (TH1D*)fXjg_iso_bkg[0]->Clone("fXjg_iso_bkg_1");
+    fXjg_iso_bkg[2] = (TH1D*)fXjg_iso_bkg[0]->Clone("fXjg_iso_bkg_2");
 
     // sideband selection - signal region
     TH1D *fXjg_sideBand_signal[3];
-    fXjg_sideBand_signal[0] = new TH1D("fXjg_sideBand_signal_0","sideband selection - signal;X_{J #gamma}", 100, 0, 2);
-    fXjg_sideBand_signal[1] = (TH1D*)fPtSigma_sideBand[0]->Clone("fXjg_sideBand_signal_1");
-    fXjg_sideBand_signal[2] = (TH1D*)fPtSigma_sideBand[0]->Clone("fXjg_sideBand_signal_2");
+    fXjg_sideBand_signal[0] = new TH1D("fXjg_sideBand_signal_0",";X_{J #gamma}", 100, 0, 2);
+    fXjg_sideBand_signal[0]->SetTitle(Form("%s - Xjg - sideband selection in signal region",processName));
+    fXjg_sideBand_signal[1] = (TH1D*)fXjg_sideBand_signal[0]->Clone("fXjg_sideBand_signal_1");
+    fXjg_sideBand_signal[2] = (TH1D*)fXjg_sideBand_signal[0]->Clone("fXjg_sideBand_signal_2");
 
     // sideband selection - background region
     TH1D *fXjg_sideBand_bkg[3];
-    fXjg_sideBand_bkg[0] = new TH1D("fXjg_sideBand_bkg_0","sideband selection - background;X_{J #gamma}", 100, 0, 2);
-    fXjg_sideBand_bkg[1] = (TH1D*)fPtSigma_sideBand[0]->Clone("fXjg_sideBand_bkg_1");
-    fXjg_sideBand_bkg[2] = (TH1D*)fPtSigma_sideBand[0]->Clone("fXjg_sideBand_bkg_2");
+    fXjg_sideBand_bkg[0] = new TH1D("fXjg_sideBand_bkg_0",";X_{J #gamma}", 100, 0, 2);
+    fXjg_sideBand_bkg[0]->SetTitle(Form("%s - Xjg - sideband selection in background region",processName));
+    fXjg_sideBand_bkg[1] = (TH1D*)fXjg_sideBand_bkg[0]->Clone("fXjg_sideBand_bkg_1");
+    fXjg_sideBand_bkg[2] = (TH1D*)fXjg_sideBand_bkg[0]->Clone("fXjg_sideBand_bkg_2");
 
     // tree names that go like accepted* : events that pass selection and that are triggered
     TH1D *accepted_iso[THRESHOLDS][3];
@@ -390,14 +394,14 @@ void makeTurnOn(process hiForestProcess, TString outFileName, double offlineEtaC
                 if(jet_pt[i] > maxfpt_jet_sideBand_signal) {
                     if(sigmaIetaIeta[index_maxfpt_sideBand] < cut_sigmaIetaIeta){
                         maxfpt_jet_sideBand_signal=jet_pt[i];
-                        Xjg_iso_bkg = maxfpt_jet_sideBand_signal / maxfpt_sideBand;
+                        Xjg_sideBand_signal = maxfpt_jet_sideBand_signal / maxfpt_sideBand;
                     }
                 }
                 // background region
                 if (jet_pt[i] > maxfpt_jet_sideBand_bkg)  {
                     if(sigmaIetaIeta[index_maxfpt_sideBand] > cut_sigmaIetaIeta){
                         maxfpt_jet_sideBand_bkg=jet_pt[i];
-                        Xjg_iso_bkg = maxfpt_jet_sideBand_bkg / maxfpt_sideBand;
+                        Xjg_sideBand_bkg = maxfpt_jet_sideBand_bkg / maxfpt_sideBand;
                     }
                 }
            }
