@@ -22,7 +22,7 @@
 #include <TLegendEntry.h>
 #include <TGraphAsymmErrors.h>
 #include <TMath.h>
-//#include "/net/hisrv0001/home/tatar/code/HIUtils/treeUtil.h"  // tested and works
+#include "/net/hisrv0001/home/tatar/code/HIUtils/treeUtil.h"  // tested and works
 
 #include <vector>
 #include <iostream>
@@ -59,7 +59,7 @@ void makeTurnOn(process hiForestProcess, TString outFileName, double offlineEtaC
     TChain *hltTree = new TChain("hltanalysis/HltTree","hltTree");
     TChain *f1JetTree = new TChain("akPu3PFJetAnalyzer/t","f1JetTree");   // must decide on the tree accroding to collision type
 
-    const char* processName = processNames[hiForestProcess];
+//    const char* processName = processNames[hiForestProcess];
 
     // prepare file names and weights according to process type
     int MAXFILES=5;
@@ -197,6 +197,8 @@ void makeTurnOn(process hiForestProcess, TString outFileName, double offlineEtaC
     ///////////// TEST
     TH1D *fPt_iso_test_Cond = (TH1D*)fPt_iso[0]->Clone("fPt_iso_test_Cond");
     TH1D *fPt_iso_test_Loop = (TH1D*)fPt_iso[0]->Clone("fPt_iso_test_Loop");
+    TH1D *fPt_iso_test_Cond_subLeading = (TH1D*)fPt_iso[0]->Clone("fPt_iso_test_Cond_subLeading");
+    TH1D *fPt_iso_test_Loop_subLeading = (TH1D*)fPt_iso[0]->Clone("fPt_iso_test_Loop_subLeading");
 
     TH1D *fPtSigma_iso[3];
     fPtSigma_iso[0] = new TH1D("fPtSigma_iso_0","isolated;#sigma_{#eta #eta}", 100, 0, 0.1);
@@ -206,67 +208,15 @@ void makeTurnOn(process hiForestProcess, TString outFileName, double offlineEtaC
     ///////////// TEST
     TH1D *fPtSigma_iso_test_Cond = (TH1D*)fPtSigma_iso[0]->Clone("fPtSigma_iso_test_Cond");
     TH1D *fPtSigma_iso_test_Loop = (TH1D*)fPtSigma_iso[0]->Clone("fPtSigma_iso_test_Loop");
+    TH1D *fPtSigma_iso_test_Cond_subLeading = (TH1D*)fPtSigma_iso[0]->Clone("fPtSigma_iso_test_Cond_subLeading");
+    TH1D *fPtSigma_iso_test_Loop_subLeading = (TH1D*)fPtSigma_iso[0]->Clone("fPtSigma_iso_test_Loop_subLeading");
 
-    TH1D *fPt_sideBand[3];
-    fPt_sideBand[0] = new TH1D("fPt_sideBand_0","sideband;offline p_{T} (GeV)",nBins,0,maxPt);
-    fPt_sideBand[1] = (TH1D*)fPt_sideBand[0]->Clone("fPt_sideBand_1");
-    fPt_sideBand[2] = (TH1D*)fPt_sideBand[0]->Clone("fPt_sideBand_2");
-
-    TH1D *fPtSigma_sideBand[3];
-    fPtSigma_sideBand[0] = new TH1D("fPtSigma_sideBand_0","sideband;#sigma_{#eta #eta}", 100, 0, 0.1);
-    fPtSigma_sideBand[1] = (TH1D*)fPtSigma_sideBand[0]->Clone("fPtSigma_sideBand_1");
-    fPtSigma_sideBand[2] = (TH1D*)fPtSigma_sideBand[0]->Clone("fPtSigma_sideBand_2");
-
-    // Xjg distributions
-    // isolation selection - signal region
-    TH1D *fXjg_iso_signal[3];
-    fXjg_iso_signal[0] = new TH1D("fXjg_iso_signal_0",";X_{J #gamma}", 100, 0, 2);
-    fXjg_iso_signal[0]->SetTitle(Form("%s - Xjg - isolation selection in signal region",processName));
-    fXjg_iso_signal[1] = (TH1D*)fXjg_iso_signal[0]->Clone("fXjg_iso_signal_1");
-    fXjg_iso_signal[2] = (TH1D*)fXjg_iso_signal[0]->Clone("fXjg_iso_signal_2");
-
-    // isolation selection - background region
-    TH1D *fXjg_iso_bkg[3];
-    fXjg_iso_bkg[0] = new TH1D("fXjg_iso_bkg_0",";X_{J #gamma}", 100, 0, 2);
-    fXjg_iso_bkg[0]->SetTitle(Form("%s - Xjg - isolation selection in background region",processName));
-    fXjg_iso_bkg[1] = (TH1D*)fXjg_iso_bkg[0]->Clone("fXjg_iso_bkg_1");
-    fXjg_iso_bkg[2] = (TH1D*)fXjg_iso_bkg[0]->Clone("fXjg_iso_bkg_2");
-
-    // sideband selection - signal region
-    TH1D *fXjg_sideBand_signal[3];
-    fXjg_sideBand_signal[0] = new TH1D("fXjg_sideBand_signal_0",";X_{J #gamma}", 100, 0, 2);
-    fXjg_sideBand_signal[0]->SetTitle(Form("%s - Xjg - sideband selection in signal region",processName));
-    fXjg_sideBand_signal[1] = (TH1D*)fXjg_sideBand_signal[0]->Clone("fXjg_sideBand_signal_1");
-    fXjg_sideBand_signal[2] = (TH1D*)fXjg_sideBand_signal[0]->Clone("fXjg_sideBand_signal_2");
-
-    // sideband selection - background region
-    TH1D *fXjg_sideBand_bkg[3];
-    fXjg_sideBand_bkg[0] = new TH1D("fXjg_sideBand_bkg_0",";X_{J #gamma}", 100, 0, 2);
-    fXjg_sideBand_bkg[0]->SetTitle(Form("%s - Xjg - sideband selection in background region",processName));
-    fXjg_sideBand_bkg[1] = (TH1D*)fXjg_sideBand_bkg[0]->Clone("fXjg_sideBand_bkg_1");
-    fXjg_sideBand_bkg[2] = (TH1D*)fXjg_sideBand_bkg[0]->Clone("fXjg_sideBand_bkg_2");
-
-    // tree names that go like accepted* : events that pass selection and that are triggered
-    TH1D *accepted_iso[THRESHOLDS][3];
-    TH1D *accepted_sieie_iso[THRESHOLDS][3];
-
-    TH1D *accepted_sideBand[THRESHOLDS][3];
-    TH1D *accepted_sieie_sideBand[THRESHOLDS][3];
-
-    for(int i = 0; i < THRESHOLDS; ++i)
-    {
-        for(int j = 0; j < 3; ++j)
-        {
-            //      accepted[i][j] = new TH1D(Form("accepted_pt%d_%d",i,j),";offline p_{T}",nBins,0,maxPt);
-            //      accepted_sieie[i][j] = new TH1D(Form("accepted_sieie%d_%d",i,j), ";#sigma_{#eta #eta}",100,0,0.1);
-
-            accepted_iso[i][j] = new TH1D(Form("accepted_pt_iso%d_%d",i,j),"isolated;offline p_{T}",nBins,0,maxPt);
-            accepted_sieie_iso[i][j] = new TH1D(Form("accepted_sieie_iso%d_%d",i,j), "isolated;#sigma_{#eta #eta}",100,0,0.1);
-
-            accepted_sideBand[i][j] = new TH1D(Form("accepted_pt_sideBand%d_%d",i,j),"sideband;offline p_{T}",nBins,0,maxPt);
-            accepted_sieie_sideBand[i][j] = new TH1D(Form("accepted_sieie_sideBand%d_%d",i,j), "sideband;#sigma_{#eta #eta}",100,0,0.1);
-        }
-    }
+//    // tree names that go like accepted* : events that pass selection and that are triggered
+//    TH1D *accepted_iso[THRESHOLDS][3];
+//    TH1D *accepted_sieie_iso[THRESHOLDS][3];
+//
+//    TH1D *accepted_sideBand[THRESHOLDS][3];
+//    TH1D *accepted_sieie_sideBand[THRESHOLDS][3];
 
     TString formula_pt = "pt";
     TString formula_sigma = "sigmaIetaIeta";
@@ -285,11 +235,35 @@ void makeTurnOn(process hiForestProcess, TString outFileName, double offlineEtaC
   //  f1Tree->Draw(Form("MaxIf$(%s,nPhotons>0) >> %s",formula_pt.Data(),fPt_vTest[0]->GetName()));
   //  f1Tree->Draw(Form("Max$(%s) >> %s",formula_pt.Data(),fPt_vTest[0]->GetName()));
 
-    f1Tree->Draw(Form("Max$(%s*(%s)) >> %s",formula_pt.Data(), condition.Data(), fPt_iso_test_Cond->GetName()));
-    // drawMaximum(f1Tree, formula_pt, condition, fPt_iso_test_Cond);       // tested and works
 
-    f1Tree->Draw(Form("%s >> %s",formula_sigma.Data(), fPtSigma_iso_test_Cond->GetName()), Form("pt > 40 && pt == Max$(%s*(%s))",formula_pt.Data(), condition.Data()));
-    //drawMaximumGeneral(f1Tree, formula_sigma, formula_pt, condition, Form("%s > 40", formula_pt.Data()) ,fPtSigma_iso_test_Cond);     // tested and works
+    // leading photon pT
+    // if no photon satisfies condition, then 0 will be plotted.
+//    f1Tree->Draw(Form("Max$(%s*(%s)) >> %s",formula_pt.Data(), condition.Data(), fPt_iso_test_Cond->GetName()));      // tested and works
+//    drawMaximum(f1Tree, formula_pt, condition, fPt_iso_test_Cond, true);  // tested and works
+
+    // if no photon satisfies condition, then nothing will be plotted.
+//    f1Tree->Draw(Form("Max$(%s*(%s)) >> %s",formula_pt.Data(), condition.Data(), fPt_iso_test_Cond->GetName()),condition.Data());   // does not work
+//    f1Tree->Draw(Form("Max$(%s*(%s)) >> %s",formula_pt.Data(), condition.Data(), fPt_iso_test_Cond->GetName()), Form("pt == Max$(pt*(%s))", condition.Data()) );   // tested and works
+    drawMaximum(f1Tree, formula_pt, condition, fPt_iso_test_Cond);     // tested and works
+//    drawMaximumGeneral(f1Tree, formula_pt, formula_pt, condition, fPt_iso_test_Cond);   // tested and works
+
+     // subleading photon pT
+    // if no subleading photon found, then 0 will be plotted.
+//    f1Tree->Draw(Form("Max$(%s*(pt < Max$(pt*(%s)))*(%s)) >> %s",formula_pt.Data(), condition.Data(), condition.Data(), fPt_iso_test_Cond_subLeading->GetName()));  // tested and works
+//    drawMaximum2nd(f1Tree, formula_pt, condition, fPt_iso_test_Cond_subLeading, true);  // tested and works
+
+    // if no subleading photon found, then nothing will be plotted.
+    drawMaximum2nd(f1Tree, formula_pt, condition, fPt_iso_test_Cond_subLeading);   // tested and works
+//    drawMaximum2nd(f1Tree, formula_pt, condition, "1==1", fPt_iso_test_Cond_subLeading);   // tested and works
+//    drawMaximum2ndGeneral(f1Tree, formula_pt, formula_pt, condition, fPt_iso_test_Cond_subLeading);    // tested and works
+
+     // leading photon sigmaIetaIeta with leading photon pT > 40
+//    f1Tree->Draw(Form("%s >> %s",formula_sigma.Data(), fPtSigma_iso_test_Cond->GetName()), Form("pt > 40 && pt == Max$(%s*(%s))",formula_pt.Data(), condition.Data()));
+     drawMaximumGeneral(f1Tree, formula_sigma, formula_pt, condition, Form("%s > 40", formula_pt.Data()) ,fPtSigma_iso_test_Cond);     // tested and works
+
+     // subleading photon sigmaIetaIeta with leading photon pT > 40 : following two lines give the same output
+//     f1Tree->Draw(Form("%s >> %s",formula_sigma.Data(), fPtSigma_iso_test_Cond_subLeading->GetName()), Form("Max$(pt*(%s)) > 40 && pt == Max$(pt*(pt<Max$(pt*(%s)))*(%s))", condition.Data(), condition.Data(), condition.Data())); // works
+     drawMaximum2ndGeneral(f1Tree, formula_sigma, formula_pt, condition, Form("Max$(pt*(%s)) > 40", condition.Data()) ,fPtSigma_iso_test_Cond_subLeading);   // tested and works
 
 
 //    f1Tree->Draw(Form("Max$(%s*(%s)) >> %s",formula_pt.Data(), condition.Data(), fPt_vTest[1]->GetName()), cut_hiBin60);
@@ -313,13 +287,6 @@ void makeTurnOn(process hiForestProcess, TString outFileName, double offlineEtaC
         weight = weights[treeIndex];
         fileEntries[treeIndex]=fEvtTree->GetTree()->GetEntries();
 
-        // bool goodEvent = false;
-        // if((pcollisionEventSelection == 1) && (TMath::Abs(vz) < 15))
-        // {
-        //   goodEvent = true;
-        // }
-        // if(!goodEvent) continue;
-
         hltTree->GetEntry(j);
         f1Tree->GetEntry(j);
         f1JetTree->GetEntry(j);
@@ -330,13 +297,12 @@ void makeTurnOn(process hiForestProcess, TString outFileName, double offlineEtaC
         //    double sigmaietaieta = -1;
 
         double maxfpt_iso = 0;
-        double maxfpt_sideBand = 0;
+        double maxfpt_iso_subLeading = 0;        //TEST
+        int index_maxfpt_iso = -1;
+        int index_maxfpt_iso_subLeading = -1;
 
         double sigmaietaieta_iso = -1;
-        double sigmaietaieta_sideBand = -1;
-
-        int index_maxfpt_iso = -1;
-        int index_maxfpt_sideBand = -1;
+        double sigmaietaieta_iso_subLeading = -1;        //TEST
 
         for(int i = 0; i < nPhoton; ++i)
         {
@@ -352,128 +318,40 @@ void makeTurnOn(process hiForestProcess, TString outFileName, double offlineEtaC
                 if(photon_pt[i] > maxfpt_iso) {
                     if(ecalRecHitSumEtConeDR04[i] < 4.2 && hcalTowerSumEtConeDR04[i] < 2.2 && trkSumPtHollowConeDR04[i] < 2)
                     {
+                        maxfpt_iso_subLeading = maxfpt_iso;   //TEST
+                        sigmaietaieta_iso_subLeading = sigmaietaieta_iso;   //TEST
+
                         maxfpt_iso=photon_pt[i];
                         sigmaietaieta_iso = sigmaIetaIeta[i];
                         index_maxfpt_iso=i;
                     }
                 }
-                // sideband selection
-                if (photon_pt[i] > maxfpt_sideBand)  {
-                    if(((cc4[i] + cr4[i] + ct4PtCut20[i])/0.9) > 10 && ((cc4[i] + cr4[i] + ct4PtCut20[i])/0.9) < 20)
+                // TEST
+                else if(photon_pt[i] > maxfpt_iso_subLeading)
+                {
+                    if(ecalRecHitSumEtConeDR04[i] < 4.2 && hcalTowerSumEtConeDR04[i] < 2.2 && trkSumPtHollowConeDR04[i] < 2)
                     {
-                        maxfpt_sideBand=photon_pt[i];
-                        sigmaietaieta_sideBand = sigmaIetaIeta[i];
-                        index_maxfpt_sideBand=i;
+                        maxfpt_iso_subLeading = photon_pt[i];
+                        sigmaietaieta_iso_subLeading = sigmaIetaIeta[i];
+                        index_maxfpt_iso_subLeading = i;
                     }
                 }
+                // TEST - END
             }
         }
 
-        double maxfpt_jet_iso_signal = 0;   // sigmaIetaIeta < 0.01
-        double maxfpt_jet_iso_bkg = 0;      // sigmaIetaIeta > 0.01
-
-        double Xjg_iso_signal = 0;   // sigmaIetaIeta < 0.01
-        double Xjg_iso_bkg = 0;      // sigmaIetaIeta > 0.01
-
-        // match jets to photons from isolation selection
-        for(int i = 0; i < nJet; ++i)
+        if(!(index_maxfpt_iso<0))
         {
-            if(index_maxfpt_iso < 0)
-                break;      // do not loop over jets, no photon was selected
-
-            if(TMath::Abs(jet_eta[i]) < cut_jet_eta)
-            if(TMath::Abs(getDPHI(jet_phi[i],photon_phi[index_maxfpt_iso])) > cut_jet_photon_deltaPhi)
-            if(jet_pt[i] > cut_jet_pt)
-            {
-                // signal region
-                if(jet_pt[i] > maxfpt_jet_iso_signal) {
-                    if(sigmaIetaIeta[index_maxfpt_iso] < cut_sigmaIetaIeta){
-                        maxfpt_jet_iso_signal=jet_pt[i];
-                        Xjg_iso_signal = maxfpt_jet_iso_signal / maxfpt_iso;
-                    }
-                }
-                // background region
-                if (jet_pt[i] > maxfpt_jet_iso_bkg)  {
-                    if(sigmaIetaIeta[index_maxfpt_iso] > cut_sigmaIetaIeta){
-                        maxfpt_jet_iso_bkg=jet_pt[i];
-                        Xjg_iso_bkg = maxfpt_jet_iso_bkg / maxfpt_iso;
-                    }
-                }
-           }
-        }
-
-        // Xjg
-        double maxfpt_jet_sideBand_signal = 0;   // sigmaIetaIeta < 0.01
-        double maxfpt_jet_sideBand_bkg = 0;      // sigmaIetaIeta > 0.01
-
-        double Xjg_sideBand_signal = 0;   // sigmaIetaIeta < 0.01
-        double Xjg_sideBand_bkg = 0;      // sigmaIetaIeta > 0.01
-
-        // match jets to photons from sideBand selection
-        for(int i = 0; i < nJet; ++i)
-        {
-            if(index_maxfpt_sideBand < 0)
-                break;      // do not loop over jets, no photon was selected
-
-            if(TMath::Abs(jet_eta[i]) < cut_jet_eta)
-            if(TMath::Abs(getDPHI(jet_phi[i],photon_phi[index_maxfpt_sideBand])) > cut_jet_photon_deltaPhi)
-            if(jet_pt[i] > cut_jet_pt)
-            {
-                // signal region
-                if(jet_pt[i] > maxfpt_jet_sideBand_signal) {
-                    if(sigmaIetaIeta[index_maxfpt_sideBand] < cut_sigmaIetaIeta){
-                        maxfpt_jet_sideBand_signal=jet_pt[i];
-                        Xjg_sideBand_signal = maxfpt_jet_sideBand_signal / maxfpt_sideBand;
-                    }
-                }
-                // background region
-                if (jet_pt[i] > maxfpt_jet_sideBand_bkg)  {
-                    if(sigmaIetaIeta[index_maxfpt_sideBand] > cut_sigmaIetaIeta){
-                        maxfpt_jet_sideBand_bkg=jet_pt[i];
-                        Xjg_sideBand_bkg = maxfpt_jet_sideBand_bkg / maxfpt_sideBand;
-                    }
-                }
-           }
-        }
-
-        // fill Xjg distributions
-        if(!(index_maxfpt_iso < 0))
-        {
-            fXjg_iso_signal[0]->Fill(Xjg_iso_signal,weight);
-            fXjg_iso_bkg[0]->Fill(Xjg_iso_bkg,weight);
+            fPt_iso[0]->Fill(maxfpt_iso,weight);
+            fPt_iso_test_Loop->Fill(maxfpt_iso);     //TEST
+            if(!(index_maxfpt_iso_subLeading<0)) fPt_iso_test_Loop_subLeading->Fill(maxfpt_iso_subLeading);     //TEST
+//            fPt_iso_test_Loop_subLeading->Fill(maxfpt_iso_subLeading);     //TEST
             if(hiBin < 60){
-                fXjg_iso_signal[1]->Fill(Xjg_iso_signal,weight);
-                fXjg_iso_bkg[1]->Fill(Xjg_iso_bkg,weight);
+                fPt_iso[1]->Fill(maxfpt_iso,weight);
             }
             else if (hiBin >= 100) {
-                fXjg_iso_signal[2]->Fill(Xjg_iso_signal,weight);
-                fXjg_iso_bkg[2]->Fill(Xjg_iso_bkg,weight);
+                fPt_iso[2]->Fill(maxfpt_iso,weight);
             }
-        }
-        if(!(index_maxfpt_sideBand < 0))
-        {
-            fXjg_sideBand_signal[0]->Fill(Xjg_sideBand_signal,weight);
-            fXjg_sideBand_bkg[0]->Fill(Xjg_sideBand_bkg,weight);
-            if(hiBin < 60){
-                fXjg_sideBand_signal[1]->Fill(Xjg_sideBand_signal,weight);
-                fXjg_sideBand_bkg[1]->Fill(Xjg_sideBand_bkg,weight);
-            }
-            else if (hiBin >= 100) {
-                fXjg_sideBand_signal[2]->Fill(Xjg_sideBand_signal,weight);
-                fXjg_sideBand_bkg[2]->Fill(Xjg_sideBand_bkg,weight);
-            }
-        }
-
-        fPt_iso[0]->Fill(maxfpt_iso,weight);
-        fPt_iso_test_Loop->Fill(maxfpt_iso);     //TEST
-        fPt_sideBand[0]->Fill(maxfpt_sideBand,weight);
-        if(hiBin < 60){
-            fPt_iso[1]->Fill(maxfpt_iso,weight);
-            fPt_sideBand[1]->Fill(maxfpt_sideBand,weight);
-        }
-        else if (hiBin >= 100) {
-            fPt_iso[2]->Fill(maxfpt_iso,weight);
-            fPt_sideBand[2]->Fill(maxfpt_sideBand,weight);
         }
 
         if(maxfpt_iso > 40)
@@ -482,6 +360,8 @@ void makeTurnOn(process hiForestProcess, TString outFileName, double offlineEtaC
                 cout << sigmaietaieta_iso << endl;
             fPtSigma_iso[0]->Fill(sigmaietaieta_iso,weight);
             fPtSigma_iso_test_Loop->Fill(sigmaietaieta_iso);    //TEST
+            if(sigmaietaieta_iso_subLeading>-1) fPtSigma_iso_test_Loop_subLeading->Fill(sigmaietaieta_iso_subLeading);    //TEST
+//            fPtSigma_iso_test_Loop_subLeading->Fill(sigmaietaieta_iso_subLeading);    //TEST
             if(hiBin < 60){
                 fPtSigma_iso[1]->Fill(sigmaietaieta_iso,weight);
             }
@@ -490,56 +370,6 @@ void makeTurnOn(process hiForestProcess, TString outFileName, double offlineEtaC
             }
         }
 
-        if(maxfpt_sideBand > 40)
-        {
-            fPtSigma_sideBand[0]->Fill(sigmaietaieta_sideBand,weight);
-            if(hiBin < 60){
-                fPtSigma_sideBand[1]->Fill(sigmaietaieta_sideBand,weight);
-            }
-            else if (hiBin >= 100) {
-                fPtSigma_sideBand[2]->Fill(sigmaietaieta_sideBand,weight);
-            }
-        }
-
-        for(int i = 0; i < THRESHOLDS; ++i)
-        {
-            if(HLT_PAPhoton30_NoCaloIdVL_v1)
-            {
-                accepted_iso[i][0]->Fill(maxfpt_iso,weight);
-                accepted_sideBand[i][0]->Fill(maxfpt_sideBand,weight);
-                if(hiBin < 60){
-                    accepted_iso[i][1]->Fill(maxfpt_iso,weight);
-                    accepted_sideBand[i][1]->Fill(maxfpt_sideBand,weight);
-                }
-                else if (hiBin >= 100){
-                    accepted_iso[i][2]->Fill(maxfpt_iso,weight);
-                    accepted_sideBand[i][2]->Fill(maxfpt_sideBand,weight);
-                }
-
-                if(maxfpt_iso > 40)
-                {
-                    accepted_sieie_iso[i][0]->Fill(sigmaietaieta_iso,weight);
-                    if(hiBin < 60){
-                        accepted_sieie_iso[i][1]->Fill(sigmaietaieta_iso,weight);
-                    }
-                    else if (hiBin >= 100){
-                        accepted_sieie_iso[i][2]->Fill(sigmaietaieta_iso,weight);
-                    }
-                }
-
-                if(maxfpt_sideBand > 40)
-                {
-                    accepted_sieie_sideBand[i][0]->Fill(sigmaietaieta_sideBand,weight);
-                    if(hiBin < 60){
-                        accepted_sieie_sideBand[i][1]->Fill(sigmaietaieta_sideBand,weight);
-                    }
-                    else if (hiBin >= 100){
-                        accepted_sieie_sideBand[i][2]->Fill(sigmaietaieta_sideBand,weight);
-                    }
-                }
-
-            }
-        }
     }
     // print weights and number of events in files
     double totWeightedEntries=0;
@@ -554,135 +384,24 @@ void makeTurnOn(process hiForestProcess, TString outFileName, double offlineEtaC
 
     std::cout<<compareHistograms(fPt_iso_test_Cond, fPt_iso_test_Loop)<<std::endl;
     std::cout<<compareHistograms(fPtSigma_iso_test_Cond, fPtSigma_iso_test_Loop)<<std::endl;
+    std::cout<<compareHistograms(fPt_iso_test_Cond_subLeading, fPt_iso_test_Loop_subLeading)<<std::endl;
+    std::cout<<compareHistograms(fPtSigma_iso_test_Cond_subLeading, fPtSigma_iso_test_Loop_subLeading)<<std::endl;
 
     outFile->cd();
     fPt_iso_test_Cond->Write();
     fPt_iso_test_Loop->Write();
     fPtSigma_iso_test_Cond->Write();
     fPtSigma_iso_test_Loop->Write();
+    //
+    fPt_iso_test_Cond_subLeading->Write();
+    fPt_iso_test_Loop_subLeading->Write();
+    fPtSigma_iso_test_Cond_subLeading->Write();
+    fPtSigma_iso_test_Loop_subLeading->Write();
 
     // add full photon tree chain
-//    f1Tree->SetNameTitle("photon","full Photon TChain");
-//    f1Tree->Write();
+    f1Tree->SetNameTitle("photon","full Photon TChain");
+    f1Tree->Write();
 
-    //  TGraphAsymmErrors *a[THRESHOLDS][3];
-    //  TGraphAsymmErrors *a_sieie[THRESHOLDS][3];
-
-//    TGraphAsymmErrors *a_iso[THRESHOLDS][3];
-//    TGraphAsymmErrors *a_sieie_iso[THRESHOLDS][3];
-//
-//    TGraphAsymmErrors *a_sideBand[THRESHOLDS][3];
-//    TGraphAsymmErrors *a_sieie_sideBand[THRESHOLDS][3];
-//    for(int k = 0; k < THRESHOLDS; ++k){
-//        for(int l = 0; l < 3; ++l)
-//        {
-//            //      a[k][l] = new TGraphAsymmErrors();
-//            //      a[k][l]->BayesDivide(accepted[k][l],fPt[l]);
-//            //      a[k][l]->SetName(Form("asymm_pt_%d_%d",k,l));
-//            //
-//            //      a_sieie[k][l] = new TGraphAsymmErrors();
-//            //      a_sieie[k][l]->BayesDivide(accepted_sieie[k][l], fPtSigma[l]);
-//            //      a_sieie[k][l]->SetName(Form("asymm_sieie_%d_%d",k,l));
-//
-//            a_iso[k][l] = new TGraphAsymmErrors();
-//            a_iso[k][l]->BayesDivide(accepted_iso[k][l],fPt_iso[l]);
-//            a_iso[k][l]->SetName(Form("asymm_pt_iso_%d_%d",k,l));
-//            a_iso[k][l]->SetTitle(Form("%s - turn on for pT - isolated",processName));
-//
-//            a_sieie_iso[k][l] = new TGraphAsymmErrors();
-//            a_sieie_iso[k][l]->BayesDivide(accepted_sieie_iso[k][l], fPtSigma_iso[l]);
-//            a_sieie_iso[k][l]->SetName(Form("asymm_sieie_iso_%d_%d",k,l));
-//            a_sieie_iso[k][l]->SetTitle(Form("%s - turn on for sigmaIEtaEta - isolated", processName));
-//
-//            a_sideBand[k][l] = new TGraphAsymmErrors();
-//            a_sideBand[k][l]->BayesDivide(accepted_sideBand[k][l],fPt_sideBand[l]);
-//            a_sideBand[k][l]->SetName(Form("asymm_pt_sideBand_%d_%d",k,l));
-//            a_sideBand[k][l]->SetTitle(Form("%s - turn on for pT - sideband", processName));
-//
-//            a_sieie_sideBand[k][l] = new TGraphAsymmErrors();
-//            a_sieie_sideBand[k][l]->BayesDivide(accepted_sieie_sideBand[k][l], fPtSigma_sideBand[l]);
-//            a_sieie_sideBand[k][l]->SetName(Form("asymm_sieie_sideBand_%d_%d",k,l));
-//            a_sieie_sideBand[k][l]->SetTitle(Form("%s - turn on for sigmaIEtaEta - sideband",processName));
-//        }
-//    }
-//
-//    TCanvas* c1 = new TCanvas();
-//    c1->SetTitle(outFileName.Data());
-//    c1->Divide(2,2);
-//    c1->cd(1);
-//    a_sieie_iso[0][0]->Draw("a p");
-//    c1->cd(3);
-//    a_sieie_sideBand[0][0]->Draw("a p");
-//    c1->cd(2);
-//    fPtSigma_iso[0]->Draw();
-//    c1->cd(4);
-//    fPtSigma_sideBand[0]->Draw();
-
-
-
-//    //  fPt[0]->Write();
-//    //  fPt[1]->Write();
-//    //  fPt[2]->Write();
-//    c1->Write();
-//
-//    fPt_iso[0]->Write();
-//    fPt_iso[1]->Write();
-//    fPt_iso[2]->Write();
-//
-//    fPt_sideBand[0]->Write();
-//    fPt_sideBand[1]->Write();
-//    fPt_sideBand[2]->Write();
-//
-//    fPtSigma_iso[0]->Write();
-//    fPtSigma_iso[1]->Write();
-//    fPtSigma_iso[2]->Write();
-//
-//    fPtSigma_sideBand[0]->Write();
-//    fPtSigma_sideBand[1]->Write();
-//    fPtSigma_sideBand[2]->Write();
-//
-//    for(int k = 0; k < THRESHOLDS; ++k){
-//        for(int l = 0; l < 3; ++l)
-//        {
-//            //      accepted[k][l]->Write();
-//            //      accepted_sieie[k][l]->Write();
-//
-//            accepted_iso[k][l]->Write();
-//            accepted_sieie_iso[k][l]->Write();
-//
-//            accepted_sideBand[k][l]->Write();
-//            accepted_sieie_sideBand[k][l]->Write();
-//        }
-//    }
-//
-//    for(int k = 0; k < THRESHOLDS; ++k){
-//        for(int l = 0; l < 3; ++l)
-//        {
-//            //      a[k][l]->Write();
-//            //      a_sieie[k][l]->Write();
-//
-//            a_iso[k][l]->Write();
-//            a_sieie_iso[k][l]->Write();
-//
-//            a_sideBand[k][l]->Write();
-//            a_sieie_sideBand[k][l]->Write();
-//        }
-//    }
-
-//    // write Xjg distributions
-//    fXjg_iso_signal[0]->Write();
-//    fXjg_iso_signal[1]->Write();
-//    fXjg_iso_signal[2]->Write();
-//    fXjg_iso_bkg[0]->Write();
-//    fXjg_iso_bkg[1]->Write();
-//    fXjg_iso_bkg[2]->Write();
-//    fXjg_sideBand_signal[0]->Write();
-//    fXjg_sideBand_signal[1]->Write();
-//    fXjg_sideBand_signal[2]->Write();
-//    fXjg_sideBand_bkg[0]->Write();
-//    fXjg_sideBand_bkg[1]->Write();
-//    fXjg_sideBand_bkg[2]->Write();
-//
     outFile->Close();
 }
 
