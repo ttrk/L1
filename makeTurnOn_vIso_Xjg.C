@@ -12,8 +12,12 @@
  * Samples are listed here :
  * https://twiki.cern.ch/twiki/bin/viewauth/CMS/PhotonAnalyses2014#pAWinter13_pPb_pythia_HIJING
  *
+ * New Samples are listed here :
+ * https://twiki.cern.ch/twiki/bin/view/CMS/PhotonAnalyses2015#pPb_centrally_produced
+ *
  * The selections are based on : 1) isolation
  *                               2) sideband
+ *
  * */
 #include <TFile.h>
 #include <TTree.h>
@@ -48,9 +52,11 @@ const int MAXJETS = 500;
 const Int_t THRESHOLDS = 1;
 enum process {
     AllQCDPhotons,  //forward
-    EmEnrichedDijets    // forward
+    EmEnrichedDijets,    // forward
+    AllQCDPhotons_NEW,  //forward
+    EmEnrichedDijets_NEW    // forward
 };
-const char* processNames[] = {"AllQCDPhotons", "EmEnrichedDijets"};
+const char* processNames[] = {"AllQCDPhotons", "EmEnrichedDijets", "AllQCDPhotons v3", "EmEnrichedDijets v3"};
 
 using namespace std;
 
@@ -93,6 +99,34 @@ void makeTurnOn(process hiForestProcess, TString outFileName, double offlineEtaC
         fileNames[2]="/mnt/hadoop/cms/store/user/luck/2014-photon-forests/pPb_MIX_localJEC_v1/HiForest_pPb_MIX_EmEnriched80.root";
         fileNames[3]="/mnt/hadoop/cms/store/user/luck/2014-photon-forests/pPb_MIX_localJEC_v1/HiForest_pPb_MIX_EmEnriched120.root";
         fileNames[4]="/mnt/hadoop/cms/store/user/luck/2014-photon-forests/pPb_MIX_localJEC_v1/HiForest_pPb_MIX_EmEnriched170.root";
+
+        weights[0]=62744./62744. ;
+        weights[1]=29499./107309.;
+        weights[2]=7640. /106817.;
+        weights[3]=1868. /104443.;
+        weights[4]=649.  /139647.;
+    }
+    else if(hiForestProcess == AllQCDPhotons_NEW)
+    {
+        fileNames[0]="/mnt/hadoop/cms/store/user/luck/2014-photon-forests/pPb_MIX_localJEC_v3/pPb_MIX_AllQCDPhoton30_localJEC_v3.root";
+        fileNames[1]="/mnt/hadoop/cms/store/user/luck/2014-photon-forests/pPb_MIX_localJEC_v3/pPb_MIX_AllQCDPhoton50_localJEC_v3.root";
+        fileNames[2]="/mnt/hadoop/cms/store/user/luck/2014-photon-forests/pPb_MIX_localJEC_v3/pPb_MIX_AllQCDPhoton80_localJEC_v3.root";
+        fileNames[3]="/mnt/hadoop/cms/store/user/luck/2014-photon-forests/pPb_MIX_localJEC_v3/pPb_MIX_AllQCDPhoton120_localJEC_v3.root";
+        fileNames[4]="/mnt/hadoop/cms/store/user/luck/2014-photon-forests/pPb_MIX_localJEC_v3/pPb_MIX_AllQCDPhoton170_localJEC_v3.root";
+
+        weights[0]=62744./62744. ;
+        weights[1]=29499./107309.;
+        weights[2]=7640. /106817.;
+        weights[3]=1868. /104443.;
+        weights[4]=649.  /139647.;
+    }
+    else if(hiForestProcess == EmEnrichedDijets_NEW)
+    {
+        fileNames[0]="/mnt/hadoop/cms/store/user/luck/2014-photon-forests/pPb_MIX_localJEC_v3/pPb_MIX_EmEnriched30_localJEC_v3.root";
+        fileNames[1]="/mnt/hadoop/cms/store/user/luck/2014-photon-forests/pPb_MIX_localJEC_v3/pPb_MIX_EmEnriched50_localJEC_v3.root";
+        fileNames[2]="/mnt/hadoop/cms/store/user/luck/2014-photon-forests/pPb_MIX_localJEC_v3/pPb_MIX_EmEnriched80_localJEC_v3.root";
+        fileNames[3]="/mnt/hadoop/cms/store/user/luck/2014-photon-forests/pPb_MIX_localJEC_v3/pPb_MIX_EmEnriched120_localJEC_v3.root";
+        fileNames[4]="/mnt/hadoop/cms/store/user/luck/2014-photon-forests/pPb_MIX_localJEC_v3/pPb_MIX_EmEnriched170_localJEC_v3.root";
 
         weights[0]=62744./62744. ;
         weights[1]=29499./107309.;
