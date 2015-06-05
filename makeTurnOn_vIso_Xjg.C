@@ -299,11 +299,18 @@ void makeTurnOn(process hiForestProcess, TString outFileName, double offlineEtaC
     fXjg_sideBand_bkg_HLT1[0] = new TH1D("fXjg_sideBand_bkg_0_HLT1",";X_{J #gamma}", 100, 0, 2);
     fXjg_sideBand_bkg_HLT1[0]->SetTitle(Form("%s - Xjg - sideband selection in background region - HLT triggered",processName));
 
+    // correlation plots
     TH2D* fPt_Sigma_iso_corr = new TH2D("fPt_Sigma_iso_corr", "isolated;p_{T}^{#gamma};#sigma_{#eta #eta}", 60,40,100, 40,0,0.04);
     TH2D* fPt_Sigma_iso_corr_HLT1 = new TH2D("fPt_Sigma_iso_corr_HLT1", "isolated - HLTtriggered;p_{T}^{#gamma};#sigma_{#eta #eta}", 60,40,100, 40,0,0.04);
 
     TH2D* fPt_Sigma_iso_corr_jet = new TH2D("fPt_Sigma_iso_corr_jet", "isolated;p_{T}^{Jet};#sigma_{#eta #eta}", 170,30,200, 40,0,0.04);
     TH2D* fPt_Sigma_iso_corr_jet_HLT1 = new TH2D("fPt_Sigma_iso_corr_jet_HLT1", "isolated - HLTtriggered;p_{T}^{Jet};#sigma_{#eta #eta}", 170,30,200, 40,0,0.04);
+
+    TH2D* fPt_Sigma_sideBand_corr = new TH2D("fPt_Sigma_sideBand_corr", "sideband;p_{T}^{#gamma};#sigma_{#eta #eta}", 60,40,100, 40,0,0.04);
+    TH2D* fPt_Sigma_sideBand_corr_HLT1 = new TH2D("fPt_Sigma_sideBand_corr_HLT1", "sideband - HLTtriggered;p_{T}^{#gamma};#sigma_{#eta #eta}", 60,40,100, 40,0,0.04);
+
+    TH2D* fPt_Sigma_sideBand_corr_jet = new TH2D("fPt_Sigma_sideBand_corr_jet", "sideband;p_{T}^{Jet};#sigma_{#eta #eta}", 170,30,200, 40,0,0.04);
+    TH2D* fPt_Sigma_sideBand_corr_jet_HLT1 = new TH2D("fPt_Sigma_sideBand_corr_jet_HLT1", "sideband - HLTtriggered;p_{T}^{Jet};#sigma_{#eta #eta}", 170,30,200, 40,0,0.04);
 
     // tree names that go like accepted* : events that pass selection and that are triggered
     TH1D *accepted_iso[THRESHOLDS][3];
@@ -433,16 +440,17 @@ void makeTurnOn(process hiForestProcess, TString outFileName, double offlineEtaC
                 }
            }
         }
-        if(maxfpt_jet_iso_signal >= maxfpt_jet_iso_bkg)        {
+        if(maxfpt_jet_iso_signal >= maxfpt_jet_iso_bkg) {
             maxfpt_jet_iso = maxfpt_jet_iso_signal;
         }
-        else        {
+        else {
             maxfpt_jet_iso = maxfpt_jet_iso_bkg;
         }
 
         // Xjg
         double maxfpt_jet_sideBand_signal = 0;   // sigmaIetaIeta < 0.01
         double maxfpt_jet_sideBand_bkg = 0;      // sigmaIetaIeta > 0.01
+        double maxfpt_jet_sideBand = 0;          // will be used in jet-sigmaIetaIeta TH2 plots
 
         double Xjg_sideBand_signal = -1;   // sigmaIetaIeta < 0.01
         double Xjg_sideBand_bkg = -1;      // sigmaIetaIeta > 0.01
@@ -473,6 +481,12 @@ void makeTurnOn(process hiForestProcess, TString outFileName, double offlineEtaC
                 }
            }
         }
+        if(maxfpt_jet_sideBand_signal >= maxfpt_jet_sideBand_bkg) {
+            maxfpt_jet_sideBand = maxfpt_jet_sideBand_signal;
+        }
+        else {
+            maxfpt_jet_sideBand = maxfpt_jet_sideBand_bkg;
+        }
 
         // fill Xjg distributions
         if(!(index_maxfpt_iso < 0) && maxfpt_iso > 40)  // there is an isolated photon in the event and it passes pt cut
@@ -499,10 +513,12 @@ void makeTurnOn(process hiForestProcess, TString outFileName, double offlineEtaC
         {
             if(Xjg_sideBand_signal!=-1) fXjg_sideBand_signal[0]->Fill(Xjg_sideBand_signal,weight);
             if(Xjg_sideBand_bkg!=-1)    fXjg_sideBand_bkg[0]->Fill(Xjg_sideBand_bkg,weight);
+            if(maxfpt_jet_sideBand!=0)  fPt_Sigma_sideBand_corr_jet->Fill(maxfpt_jet_sideBand,sigmaIetaIeta[index_maxfpt_sideBand],weight);
             if(HLT_PAPhoton30_NoCaloIdVL_v1)
             {
                 if(Xjg_sideBand_signal!=-1) fXjg_sideBand_signal_HLT1[0]->Fill(Xjg_sideBand_signal,weight);
                 if(Xjg_sideBand_bkg!=-1)    fXjg_sideBand_bkg_HLT1[0]->Fill(Xjg_sideBand_bkg,weight);
+                if(maxfpt_jet_sideBand!=0)  fPt_Sigma_sideBand_corr_jet_HLT1->Fill(maxfpt_jet_sideBand,sigmaIetaIeta[index_maxfpt_sideBand],weight);
             }
             if(hiBin < 60){
                 if(Xjg_sideBand_signal!=-1) fXjg_sideBand_signal[1]->Fill(Xjg_sideBand_signal,weight);
@@ -551,6 +567,7 @@ void makeTurnOn(process hiForestProcess, TString outFileName, double offlineEtaC
         if(maxfpt_sideBand > 40)
         {
             fPtSigma_sideBand[0]->Fill(sigmaietaieta_sideBand,weight);
+            fPt_Sigma_sideBand_corr->Fill(maxfpt_sideBand, sigmaietaieta_sideBand, weight);    // corr : photon pt - sigmaIetaIeta
             if(hiBin < 60){
                 fPtSigma_sideBand[1]->Fill(sigmaietaieta_sideBand,weight);
             }
@@ -589,6 +606,7 @@ void makeTurnOn(process hiForestProcess, TString outFileName, double offlineEtaC
                 if(maxfpt_sideBand > 40)
                 {
                     accepted_sieie_sideBand[i][0]->Fill(sigmaietaieta_sideBand,weight);
+                    fPt_Sigma_sideBand_corr_HLT1->Fill(maxfpt_sideBand, sigmaietaieta_sideBand, weight);    // corr : photon pt - sigmaIetaIeta
                     if(hiBin < 60){
                         accepted_sieie_sideBand[i][1]->Fill(sigmaietaieta_sideBand,weight);
                     }
@@ -763,6 +781,11 @@ void makeTurnOn(process hiForestProcess, TString outFileName, double offlineEtaC
     fPt_Sigma_iso_corr_HLT1->Write();
     fPt_Sigma_iso_corr_jet->Write();
     fPt_Sigma_iso_corr_jet_HLT1->Write();
+
+    fPt_Sigma_sideBand_corr->Write();
+    fPt_Sigma_sideBand_corr_HLT1->Write();
+    fPt_Sigma_sideBand_corr_jet->Write();
+    fPt_Sigma_sideBand_corr_jet_HLT1->Write();
 
     outFile->Close();
 }
